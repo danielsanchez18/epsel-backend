@@ -1,0 +1,27 @@
+package com.epsel.epsel_api.modules.customers.services;
+
+import com.epsel.epsel_api.modules.customers.dto.CreateCustomerDTO;
+import com.epsel.epsel_api.modules.customers.dto.CustomerResponseDTO;
+import com.epsel.epsel_api.modules.customers.dto.UpdateCustomerDTO;
+import com.epsel.epsel_api.modules.customers.enums.CustomerType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.util.UUID;
+
+public interface CustomerService {
+
+    CustomerResponseDTO create(CreateCustomerDTO dto);
+
+    CustomerResponseDTO update(UUID id, UpdateCustomerDTO dto);
+
+    CustomerResponseDTO getById(UUID id);
+
+    Page<CustomerResponseDTO> search(
+            String search,
+            CustomerType type,
+            Pageable pageable
+    );
+
+    void delete(UUID id);
+}

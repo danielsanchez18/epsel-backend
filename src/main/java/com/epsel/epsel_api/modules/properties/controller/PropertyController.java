@@ -1,0 +1,104 @@
+package com.epsel.epsel_api.modules.properties.controller;
+
+import com.epsel.epsel_api.modules.properties.dto.CreatePropertyDTO;
+import com.epsel.epsel_api.modules.properties.dto.PropertyResponseDTO;
+import com.epsel.epsel_api.modules.properties.dto.UpdatePropertyDTO;
+import com.epsel.epsel_api.modules.properties.enums.PropertyType;
+import com.epsel.epsel_api.modules.properties.services.PropertyService;
+import com.epsel.epsel_api.shared.responses.ApiResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/properties")
+@RequiredArgsConstructor
+public class PropertyController {
+
+    private final PropertyService service;
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<PropertyResponseDTO>> create(
+            @Valid @RequestBody CreatePropertyDTO dto) {
+
+        PropertyResponseDTO response = service.create(dto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse
+                        .<PropertyResponseDTO>builder()
+                        .success(true)
+                        .message("Propiedad creada exitosamente")
+                        .data(response)
+                        .build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<PropertyResponseDTO>> update(
+            @PathVariable UUID id,
+            @RequestBody UpdatePropertyDTO dto) {
+
+        PropertyResponseDTO response = service.update(id, dto);
+
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<PropertyResponseDTO>builder()
+                        .success(true)
+                        .message("Propiedad actualizada exitosamente")
+                        .data(response)
+                        .build());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<PropertyResponseDTO>> getById(@PathVariable UUID id) {
+
+        PropertyResponseDTO response = service.getById(id);
+
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<PropertyResponseDTO>builder()
+                        .success(true)
+                        .message("Propiedad obtenida exitosamente")
+                        .data(response)
+                        .build());
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<Page<PropertyResponseDTO>>> search(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) PropertyType type,
+            @RequestParam(required = false) UUID customerId,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PropertyResponseDTO> response = service.search(search, type, customerId, pageable);
+
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<Page<PropertyResponseDTO>>builder()
+                        .success(true)
+                        .message("Propiedades obtenidas exitosamente")
+                        .data(response)
+                        .build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
+
+        service.delete(id);
+
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<Void>builder()
+                        .success(true)
+                        .message("Propiedad eliminada exitosamente")
+                        .build());
+    }
+}
