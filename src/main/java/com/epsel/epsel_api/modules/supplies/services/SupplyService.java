@@ -21,6 +21,12 @@ public interface SupplyService {
 
     SupplyDetailsDTO getById(UUID id);
 
+    Page<SupplyDetailsDTO> getByCustomerId(UUID customerId, Pageable pageable);
+
+    Page<SupplyDetailsDTO> getByPropertyId(UUID propertyId, Pageable pageable);
+
+    SupplyDetailsDTO getByInstallationRequestId(UUID installationRequestId);
+
     SupplyResponseDTO suspend(
             UUID id,
             SuspendSupplyDTO dto

@@ -4,6 +4,7 @@ import com.epsel.epsel_api.modules.supplies.entities.Supply;
 import com.epsel.epsel_api.modules.supplies.enums.SupplyStatus;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;

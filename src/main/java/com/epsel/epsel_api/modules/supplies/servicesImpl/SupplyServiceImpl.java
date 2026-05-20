@@ -58,6 +58,32 @@ public class SupplyServiceImpl implements SupplyService {
     }
 
     @Override
+    public Page<SupplyDetailsDTO> getByCustomerId(UUID customerId, Pageable pageable) {
+        return repository.findByCustomerIdAndDeletedFalse(customerId, pageable)
+                .map(this::mapDetails);
+    }
+
+    @Override
+    public Page<SupplyDetailsDTO> getByPropertyId(UUID propertyId, Pageable pageable) {
+        return repository.findByPropertyIdAndDeletedFalse(propertyId, pageable)
+                .map(this::mapDetails);
+    }
+
+    @Override
+    public SupplyDetailsDTO getByInstallationRequestId(UUID installationRequestId) {
+
+        Supply supply = repository.
+                findByInstallationRequestIdAndDeletedFalse(installationRequestId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Suministro no encontrado para la solicitud de instalación"
+                        )
+                );
+
+        return mapDetails(supply);
+    }
+
+    @Override
     public SupplyResponseDTO suspend(
             UUID id,
             SuspendSupplyDTO dto

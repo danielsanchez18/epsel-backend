@@ -1,6 +1,7 @@
 package com.epsel.epsel_api.modules.supplies.repositories;
 
 import com.epsel.epsel_api.modules.properties.entities.Property;
+import com.epsel.epsel_api.modules.supplies.dto.SupplyDetailsDTO;
 import com.epsel.epsel_api.modules.supplies.entities.Supply;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,5 +24,9 @@ public interface SupplyRepository extends
     Boolean existsByMeterNumberAndDeletedFalse(String meterNumber);
 
     Page<Supply> findByCustomerIdAndDeletedFalse(UUID customerId, Pageable pageable);
+
+    Page<Supply> findByPropertyIdAndDeletedFalse(UUID propertyId, Pageable pageable);
+
+    Optional<Supply> findByInstallationRequestIdAndDeletedFalse(UUID installationRequestId);
 
 }

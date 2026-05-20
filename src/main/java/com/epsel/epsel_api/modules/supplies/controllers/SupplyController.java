@@ -81,6 +81,70 @@ public class SupplyController {
         );
     }
 
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<ApiResponse<Page<SupplyDetailsDTO>>> getByCustomerId(
+            @PathVariable UUID customerId,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size
+    ) {
+
+        Pageable pageable =
+                PageRequest.of(page, size);
+
+        Page<SupplyDetailsDTO> response =
+                service.getByCustomerId(customerId, pageable);
+
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<Page<SupplyDetailsDTO>>builder()
+                        .success(true)
+                        .message("Suministros del cliente encontrados")
+                        .data(response)
+                        .build()
+        );
+    }
+
+    @GetMapping("/property/{propertyId}")
+    public ResponseEntity<ApiResponse<Page<SupplyDetailsDTO>>> getByPropertyId(
+            @PathVariable UUID propertyId,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size
+    ) {
+
+        Pageable pageable =
+                PageRequest.of(page, size);
+
+        Page<SupplyDetailsDTO> response =
+                service.getByPropertyId(propertyId, pageable);
+
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<Page<SupplyDetailsDTO>>builder()
+                        .success(true)
+                        .message("Suministros de la propiedad encontrados")
+                        .data(response)
+                        .build()
+        );
+    }
+
+    @GetMapping("/installation-request/{installationRequestId}")
+    public ResponseEntity<ApiResponse<SupplyDetailsDTO>> getByInstallationRequestId(
+            @PathVariable UUID installationRequestId
+    ) {
+
+        SupplyDetailsDTO response =
+                service.getByInstallationRequestId(installationRequestId);
+
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<SupplyDetailsDTO>builder()
+                        .success(true)
+                        .message("Suministro encontrado para la solicitud de instalación")
+                        .data(response)
+                        .build()
+        );
+    }
+
     @PatchMapping("/{id}/suspend")
     public ResponseEntity<ApiResponse<SupplyResponseDTO>> suspend(
             @PathVariable UUID id,
