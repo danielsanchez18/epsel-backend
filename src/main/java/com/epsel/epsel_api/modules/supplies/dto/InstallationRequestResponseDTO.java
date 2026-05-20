@@ -15,12 +15,20 @@ import java.util.UUID;
 public class InstallationRequestResponseDTO {
 
     private UUID id;
+    private UUID customerId;
     private String customerName;
+    private String zoneName;
+    private UUID propertyId;
     private String propertyAddress;
     private BigDecimal installationCost;
     private InstallationRequestStatus status;
     private LocalDate requestedDate;
+    private LocalDate approvedDate;
     private LocalDate installationDate;
+    private LocalDate rejectedDate;
+    private String approvedBy;
+    private String installedBy;
+    private String rejectedBy;
     private String observations;
 
 }
