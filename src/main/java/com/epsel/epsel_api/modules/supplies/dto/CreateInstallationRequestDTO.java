@@ -17,6 +17,7 @@ public class CreateInstallationRequestDTO {
     @NotNull(message = "La propiedad es requerida")
     private UUID propertyId;
 
+    private String internalReference;
     private LocalDate requestedDate;
     private String observations;
 

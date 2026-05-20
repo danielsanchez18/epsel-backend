@@ -20,6 +20,7 @@ public class InstallationRequestResponseDTO {
     private String zoneName;
     private UUID propertyId;
     private String propertyAddress;
+    private String internalReference;
     private BigDecimal installationCost;
     private InstallationRequestStatus status;
     private LocalDate requestedDate;

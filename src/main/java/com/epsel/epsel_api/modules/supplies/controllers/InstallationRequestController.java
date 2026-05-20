@@ -1,6 +1,7 @@
 package com.epsel.epsel_api.modules.supplies.controllers;
 
 import com.epsel.epsel_api.modules.supplies.dto.CreateInstallationRequestDTO;
+import com.epsel.epsel_api.modules.supplies.dto.InstallSupplyDTO;
 import com.epsel.epsel_api.modules.supplies.dto.InstallationRequestResponseDTO;
 import com.epsel.epsel_api.modules.supplies.services.InstallationRequestService;
 import com.epsel.epsel_api.shared.responses.ApiResponse;
@@ -74,9 +75,11 @@ public class InstallationRequestController {
     }
 
     @PatchMapping("/{id}/install")
-    public ResponseEntity<ApiResponse<InstallationRequestResponseDTO>> install(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<InstallationRequestResponseDTO>> install(
+            @PathVariable UUID id,
+            @RequestBody InstallSupplyDTO dto) {
 
-        InstallationRequestResponseDTO response = service.install(id);
+        InstallationRequestResponseDTO response = service.install(id, dto);
 
         return ResponseEntity.ok(
                 ApiResponse

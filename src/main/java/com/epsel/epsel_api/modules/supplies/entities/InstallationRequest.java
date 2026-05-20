@@ -22,9 +22,13 @@ public class InstallationRequest extends BaseEntity {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "property_id")
     private Property property;
+
+    // Piso 1, Tienda, etc
+    @Column(length = 100)
+    private String internalReference;
 
     /* Precio de instalación aplicado */
     @Column(nullable = false, precision = 10, scale = 2)

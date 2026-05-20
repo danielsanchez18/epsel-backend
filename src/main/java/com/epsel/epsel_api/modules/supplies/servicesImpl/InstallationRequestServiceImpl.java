@@ -9,6 +9,7 @@ import com.epsel.epsel_api.modules.customers.repositories.CustomerRepository;
 import com.epsel.epsel_api.modules.properties.entities.Property;
 import com.epsel.epsel_api.modules.properties.repositories.PropertyRepository;
 import com.epsel.epsel_api.modules.supplies.dto.CreateInstallationRequestDTO;
+import com.epsel.epsel_api.modules.supplies.dto.InstallSupplyDTO;
 import com.epsel.epsel_api.modules.supplies.dto.InstallationRequestResponseDTO;
 import com.epsel.epsel_api.modules.supplies.entities.InstallationRequest;
 import com.epsel.epsel_api.modules.supplies.entities.Supply;
@@ -49,12 +50,14 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
         Property property = propertyRepository.findByIdAndDeletedFalse(dto.getPropertyId())
                         .orElseThrow(() -> new ResourceNotFoundException("Propiedad no encontrada"));
 
-        Boolean exists = repository.existsByPropertyAndStatusIn(
-                property,
-                List.of(
-                        InstallationRequestStatus.PENDING,
-                        InstallationRequestStatus.APPROVED
-                )
+        Boolean exists = repository
+                .existsByPropertyAndInternalReferenceIgnoreCaseAndStatusIn(
+                        property,
+                        dto.getInternalReference(),
+                        List.of(
+                                InstallationRequestStatus.PENDING,
+                                InstallationRequestStatus.APPROVED
+                        )
         );
 
         if (Boolean.TRUE.equals(exists)) {
@@ -72,6 +75,7 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
 
         request.setCustomer(customer);
         request.setProperty(property);
+        request.setInternalReference(dto.getInternalReference());
         request.setInstallationCost(fee.getAmount());
         request.setStatus(InstallationRequestStatus.PENDING);
         request.setRequestedDate(dto.getRequestedDate());
@@ -119,7 +123,7 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
     }
 
     @Override
-    public InstallationRequestResponseDTO install(UUID id) {
+    public InstallationRequestResponseDTO install(UUID id, InstallSupplyDTO dto) {
 
         InstallationRequest request = repository.findByIdAndDeletedFalse(id)
                         .orElseThrow(() -> new ResourceNotFoundException("Solicitud no encontrada"));
@@ -131,9 +135,18 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
         Supply supply = new Supply();
 
         supply.setProperty(request.getProperty());
+        supply.setCustomer(request.getCustomer());
+        supply.setInstallationRequest(request);
         supply.setStatus(SupplyStatus.ACTIVE);
         supply.setConnected(true);
+        supply.setSupplyType(request.getProperty().getType());
         supply.setSupplyNumber(generateSupplyNumber());
+        supply.setInternalReference(request.getInternalReference());
+        supply.setInstallationDate(LocalDate.now());
+        supply.setActivationDate(LocalDate.now());
+        supply.setLastReading(0);
+        supply.setMeterNumber(dto.getMeterNumber());
+
 
         supplyRepository.save(supply);
 
@@ -192,6 +205,7 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
                 .zoneName(request.getProperty() != null && request.getProperty().getZone() != null ? request.getProperty().getZone().getName() : null)
                 .propertyId(request.getProperty() != null ? request.getProperty().getId() : null)
                 .propertyAddress(request.getProperty() != null ? request.getProperty().getAddress() : null)
+                .internalReference(request.getInternalReference())
                 .installationCost(request.getInstallationCost())
                 .status(request.getStatus())
                 .requestedDate(request.getRequestedDate())

@@ -1,6 +1,7 @@
 package com.epsel.epsel_api.modules.supplies.services;
 
 import com.epsel.epsel_api.modules.supplies.dto.CreateInstallationRequestDTO;
+import com.epsel.epsel_api.modules.supplies.dto.InstallSupplyDTO;
 import com.epsel.epsel_api.modules.supplies.dto.InstallationRequestResponseDTO;
 import com.epsel.epsel_api.modules.supplies.enums.InstallationRequestStatus;
 import org.springframework.data.domain.Page;
@@ -16,7 +17,7 @@ public interface InstallationRequestService {
 
     InstallationRequestResponseDTO reject(UUID id, String observations);
 
-    InstallationRequestResponseDTO install(UUID id);
+    InstallationRequestResponseDTO install(UUID id, InstallSupplyDTO dto);
 
     Page<InstallationRequestResponseDTO> findAll(
             String search,

@@ -18,4 +18,6 @@ public interface InstallationRequestRepository
 
     Optional<InstallationRequest> findByIdAndDeletedFalse(UUID id);
 
+    Boolean existsByPropertyAndInternalReferenceIgnoreCaseAndStatusIn(Property property, String internalReference, List<InstallationRequestStatus> pending);
+
 }

@@ -5,4 +5,6 @@ public enum SupplyStatus {
     ACTIVE,
     SUSPENDED,
     CUT_OFF,
+    RECONNECTED,
+    INACTIVE
 }
