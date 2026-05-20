@@ -21,6 +21,7 @@ public class BillingResponseDTO {
     private Integer consumption;
     private BigDecimal unitPrice;
     private BigDecimal fixedCharge;
+    private BigDecimal taxPercentage;
     private BigDecimal subtotal;
     private BigDecimal taxAmount;
     private BigDecimal totalAmount;

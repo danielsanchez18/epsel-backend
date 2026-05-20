@@ -21,6 +21,7 @@ public class PropertySpecification {
                 String like = "%" + search.toLowerCase() + "%";
 
                 predicate = cb.and(predicate, cb.or(
+                        cb.like(cb.lower(root.get("cadastralCode")), like),
                         cb.like(cb.lower(root.get("address")), like),
                         cb.like(cb.lower(root.get("reference")), like))
                 );

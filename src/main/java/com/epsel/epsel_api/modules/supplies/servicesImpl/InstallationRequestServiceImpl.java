@@ -44,8 +44,8 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
                         .orElseThrow(() -> new ResourceNotFoundException("Propiedad no encontrada"));
 
         ServiceFeeConfiguration fee = feeRepository
-                        .findByZone_NameAndFeeTypeAndActiveTrue(
-                                property.getZone().getName(),
+                        .findByZone_IdAndFeeTypeAndActiveTrue(
+                                property.getZone().getId(),
                                 ServiceFeeType.INSTALLATION
                         )
                         .orElseThrow(() -> new ResourceNotFoundException("Instalación no disponible para la zona de la propiedad"));

@@ -13,6 +13,9 @@ public class UpdatePropertyDTO {
     private PropertyType type;
     private String address;
     private String reference;
+    private String cadastralCode;
+    private Double latitude;
+    private Double longitude;
     private UUID zoneId;
 
 }

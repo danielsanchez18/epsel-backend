@@ -22,10 +22,14 @@ public class Property extends BaseEntity {
     @Column(nullable = false)
     private PropertyType type;
 
+    @Column(unique = true, length = 50)
+    private String cadastralCode;
+
     @Column(nullable = false)
     private String address;
 
-    @Column
+    private Double latitude;
+    private Double longitude;
     private String reference;
 
     @ManyToOne(optional = false)

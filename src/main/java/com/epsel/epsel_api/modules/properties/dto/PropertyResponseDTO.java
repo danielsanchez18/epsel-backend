@@ -16,7 +16,10 @@ public class PropertyResponseDTO {
     private UUID customerId;
     private String customerName;
     private PropertyType type;
+    private String cadastralCode;
     private String address;
+    private Double latitude;
+    private Double longitude;
     private String reference;
     private UUID zoneId;
     private String zoneName;

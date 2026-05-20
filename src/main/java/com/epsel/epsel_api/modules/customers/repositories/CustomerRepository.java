@@ -15,4 +15,6 @@ public interface CustomerRepository extends
 
     Boolean existsByDocumentNumberAndDeletedFalse(String documentNumber);
 
+    Optional<Customer> findByIdAndDeletedFalse(UUID customerId);
+
 }

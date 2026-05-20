@@ -37,6 +37,10 @@ public class Billing extends BaseEntity {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal fixedCharge;
 
+    /* Resumen del porcentaje de impuestos */
+    @Column(nullable = false, precision = 5, scale = 2)
+    private BigDecimal taxPercentage;
+
     /* Subtotal antes de impuestos */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;

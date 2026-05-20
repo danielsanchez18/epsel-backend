@@ -13,6 +13,7 @@ import com.epsel.epsel_api.modules.readings.entities.MeterReading;
 import com.epsel.epsel_api.modules.readings.enums.ReadingStatus;
 import com.epsel.epsel_api.modules.readings.repositories.MeterReadingRepository;
 import com.epsel.epsel_api.modules.supplies.entities.Supply;
+import com.epsel.epsel_api.modules.supplies.enums.SupplyStatus;
 import com.epsel.epsel_api.shared.exceptions.BadRequestException;
 import com.epsel.epsel_api.shared.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -40,17 +41,29 @@ public class BillingServiceImpl implements BillingService {
         MeterReading reading = readingRepository.findById(readingId)
                         .orElseThrow(() -> new ResourceNotFoundException("Lectura no encontrada"));
 
+        if (reading.getStatus() != ReadingStatus.VALIDATED) {
+            throw new BadRequestException("La lectura debe estar validada para generar una factura");
+        }
+
+        if (reading.getConsumption() <= 0) {
+            throw new BadRequestException("El consumo registrado en la lectura debe ser mayor a cero para generar una factura");
+        }
+
         if (repository.existsByReading(reading)) {
             throw new BadRequestException("Ya existe una factura correspondiente a esta lectura");
         }
 
         Supply supply = reading.getSupply();
 
+        if (supply.getStatus() != SupplyStatus.ACTIVE) {
+            throw new BadRequestException("No se puede generar una factura para un suministro inactivo");
+        }
+
         WaterTariffConfiguration tariff = tariffRepository
                         .findFirstByZoneAndActiveTrueAndEffectiveDateLessThanEqualOrderByEffectiveDateDesc(
                                 supply.getProperty().getZone(),
-                                LocalDate.now()
-                        ).orElseThrow(() -> new ResourceNotFoundException("No se ha encontrado ninguna configuración de tarifa activa"));
+                                reading.getReadingDate()
+                        ).orElseThrow(() -> new ResourceNotFoundException("No se ha encontrado una tarifa activa"));
 
         BillingConfiguration billingConfig = billingConfigurationRepository
                         .findFirstByActiveTrue()
@@ -58,16 +71,21 @@ public class BillingServiceImpl implements BillingService {
 
         BigDecimal consumption = BigDecimal.valueOf(reading.getConsumption());
         BigDecimal subtotalConsumption = consumption.multiply(tariff.getPricePerM3());
-        BigDecimal subtotal = subtotalConsumption.add(tariff.getFixedCharge());
+
+        BigDecimal subtotal = subtotalConsumption
+                .add(tariff.getFixedCharge()
+                .setScale(2, RoundingMode.HALF_UP));
 
         BigDecimal taxAmount = subtotal.multiply(
                         tariff.getTaxPercentage().divide(
                                 BigDecimal.valueOf(100),
                                 4,
-                                RoundingMode.HALF_UP)
-        );
+                                RoundingMode.HALF_UP))
+                .setScale(2, RoundingMode.HALF_UP);
 
-        BigDecimal total = subtotal.add(taxAmount);
+        BigDecimal total = subtotal.add(taxAmount).setScale(2, RoundingMode.HALF_UP);
+
+        LocalDate billingDate = reading.getReadingDate();
 
         Billing billing = new Billing();
 
@@ -76,11 +94,12 @@ public class BillingServiceImpl implements BillingService {
         billing.setConsumption(reading.getConsumption());
         billing.setUnitPrice(tariff.getPricePerM3());
         billing.setFixedCharge(tariff.getFixedCharge());
+        billing.setTaxPercentage(tariff.getTaxPercentage());
         billing.setSubtotal(subtotal);
         billing.setTaxAmount(taxAmount);
         billing.setTotalAmount(total);
-        billing.setBillingDate(LocalDate.now());
-        billing.setDueDate(LocalDate.now().plusDays(billingConfig.getGraceDays()));
+        billing.setBillingDate(billingDate);
+        billing.setDueDate(billingDate.plusDays(billingConfig.getGraceDays()));
         billing.setStatus(BillingStatus.PENDING);
 
         Billing saved = repository.save(billing);
@@ -113,6 +132,7 @@ public class BillingServiceImpl implements BillingService {
                 .consumption(billing.getConsumption())
                 .unitPrice(billing.getUnitPrice())
                 .fixedCharge(billing.getFixedCharge())
+                .taxPercentage(billing.getTaxPercentage())
                 .subtotal(billing.getSubtotal())
                 .taxAmount(billing.getTaxAmount())
                 .totalAmount(billing.getTotalAmount())
