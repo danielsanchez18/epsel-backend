@@ -4,6 +4,7 @@ import com.epsel.epsel_api.modules.configurations.dto.CreateWaterTariffConfigura
 import com.epsel.epsel_api.modules.configurations.dto.WaterTariffConfigurationResponseDTO;
 import com.epsel.epsel_api.modules.configurations.entities.ServiceZone;
 import com.epsel.epsel_api.modules.configurations.entities.WaterTariffConfiguration;
+import com.epsel.epsel_api.modules.configurations.enums.TariffStatus;
 import com.epsel.epsel_api.modules.configurations.repositories.ServiceZoneRepository;
 import com.epsel.epsel_api.modules.configurations.repositories.WaterTariffConfigurationRepository;
 import com.epsel.epsel_api.modules.configurations.service.WaterTariffConfigurationService;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -51,6 +53,7 @@ public class WaterTariffConfigurationServiceImpl implements WaterTariffConfigura
         tariff.setTaxPercentage(dto.getTaxPercentage());
         tariff.setEffectiveDate(dto.getEffectiveDate());
         tariff.setActive(true);
+        tariff.setStatus(TariffStatus.UPCOMING);
 
         WaterTariffConfiguration saved = repository.save(tariff);
 
@@ -87,10 +90,6 @@ public class WaterTariffConfigurationServiceImpl implements WaterTariffConfigura
         Page<WaterTariffConfiguration> page = repository.findAll(
                 WaterTariffConfigurationSpecification.search(zoneName, active), pageable);
 
-        // Depuración rápida
-        System.out.println("WaterTariffConfigurationServiceImpl.getAll -> zoneName='" + zoneName + "', active='" + active + "', total=" + page.getTotalElements());
-        page.forEach(t -> System.out.println("Tariff -> id: " + t.getId() + ", zoneName: '" + t.getZone().getName() + "', active: " + t.getActive()));
-
         return page.map(this::mapResponse);
     }
 
@@ -109,6 +108,34 @@ public class WaterTariffConfigurationServiceImpl implements WaterTariffConfigura
         repository.save(tariff);
     }
 
+    private TariffStatus calculateStatus(WaterTariffConfiguration tariff) {
+        if (!tariff.getActive()) {
+            return TariffStatus.DISABLED;
+        }
+
+        LocalDate today = LocalDate.now();
+
+        List<WaterTariffConfiguration> tariffs = repository
+                .findByZoneAndActiveTrueOrderByEffectiveDateDesc(
+                        tariff.getZone()
+                );
+
+        WaterTariffConfiguration current = tariffs.stream()
+                .filter(t -> !t.getEffectiveDate().isAfter(today))
+                .findFirst()
+                .orElse(null);
+
+        if (current != null && current.getId().equals(tariff.getId())) {
+            return TariffStatus.ACTIVE;
+        }
+
+        if (tariff.getEffectiveDate().isAfter(today)) {
+            return TariffStatus.UPCOMING;
+        }
+
+        return TariffStatus.HISTORICAL;
+    }
+
     private WaterTariffConfigurationResponseDTO mapResponse(WaterTariffConfiguration tariff) {
 
         return WaterTariffConfigurationResponseDTO.builder()
@@ -120,6 +147,7 @@ public class WaterTariffConfigurationServiceImpl implements WaterTariffConfigura
                 .taxPercentage(tariff.getTaxPercentage())
                 .effectiveDate(tariff.getEffectiveDate())
                 .active(tariff.getActive())
+                .status(calculateStatus(tariff))
                 .build();
     }
 }

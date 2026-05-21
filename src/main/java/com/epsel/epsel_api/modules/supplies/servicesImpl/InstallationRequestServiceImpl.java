@@ -42,40 +42,56 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
     private final AuthUtils authUtils;
 
     @Override
-    public InstallationRequestResponseDTO create(CreateInstallationRequestDTO dto) {
+    public InstallationRequestResponseDTO create(
+            CreateInstallationRequestDTO dto
+    ) {
 
-        Customer customer = customerRepository.findByIdAndDeletedFalse(dto.getCustomerId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado"));
+        Customer customer = customerRepository
+                .findByIdAndDeletedFalse(dto.getCustomerId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Cliente no encontrado"));
 
-        Property property = propertyRepository.findByIdAndDeletedFalse(dto.getPropertyId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Propiedad no encontrada"));
+        Property property = propertyRepository
+                .findByIdAndDeletedFalse(dto.getPropertyId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Propiedad no encontrada"));
+
+        String internalReference = dto.getInternalReference()
+                .trim()
+                .toUpperCase();
 
         Boolean exists = repository
                 .existsByPropertyAndInternalReferenceIgnoreCaseAndStatusIn(
                         property,
-                        dto.getInternalReference(),
+                        internalReference,
                         List.of(
                                 InstallationRequestStatus.PENDING,
-                                InstallationRequestStatus.APPROVED
+                                InstallationRequestStatus.APPROVED,
+                                InstallationRequestStatus.INSTALLED
                         )
-        );
+                );
 
         if (Boolean.TRUE.equals(exists)) {
-            throw new BadRequestException("Ya existe una solicitud activa para esta propiedad");
+            throw new BadRequestException(
+                    "Ya existe una instalación registrada para esta referencia"
+            );
         }
 
         ServiceFeeConfiguration fee = feeRepository
-                        .findByZone_IdAndFeeTypeAndActiveTrue(
-                                property.getZone().getId(),
-                                ServiceFeeType.INSTALLATION
-                        )
-                        .orElseThrow(() -> new ResourceNotFoundException("Instalación no disponible esta zona"));
+                .findByZone_IdAndFeeTypeAndActiveTrue(
+                        property.getZone().getId(),
+                        ServiceFeeType.INSTALLATION
+                )
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Instalación no disponible para esta zona"
+                        ));
 
         InstallationRequest request = new InstallationRequest();
 
         request.setCustomer(customer);
         request.setProperty(property);
-        request.setInternalReference(dto.getInternalReference());
+        request.setInternalReference(internalReference);
         request.setInstallationCost(fee.getAmount());
         request.setStatus(InstallationRequestStatus.PENDING);
         request.setRequestedDate(dto.getRequestedDate());

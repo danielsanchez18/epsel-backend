@@ -22,16 +22,13 @@ public class WaterTariffConfigurationSpecification {
 
             if (zoneName != null && !zoneName.isBlank()) {
                 String like = "%" + zoneName.toLowerCase() + "%";
-                System.out.println("WaterTariffConfigurationSpecification.search -> zoneName='" + zoneName + "', like='" + like + "'");
 
                 Predicate zoneNameLike = cb.like(cb.lower(root.get("zone").get("name")), like);
                 predicates.add(zoneNameLike);
-                System.out.println("WaterTariffConfigurationSpecification.search -> añadido predicado LIKE para zone.name");
             }
 
             if (active != null) {
                 predicates.add(cb.equal(root.get("active"), active));
-                System.out.println("WaterTariffConfigurationSpecification.search -> filtrando por active=" + active);
             }
 
             Predicate[] arr = predicates.toArray(new Predicate[0]);

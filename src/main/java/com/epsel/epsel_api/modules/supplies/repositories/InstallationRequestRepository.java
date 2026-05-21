@@ -20,4 +20,6 @@ public interface InstallationRequestRepository
 
     Boolean existsByPropertyAndInternalReferenceIgnoreCaseAndStatusIn(Property property, String internalReference, List<InstallationRequestStatus> pending);
 
+    Boolean existsByPropertyAndInternalReferenceAndStatusIn(Property property, String internalReference, List<InstallationRequestStatus> pending);
+
 }

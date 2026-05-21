@@ -1,5 +1,6 @@
 package com.epsel.epsel_api.modules.configurations.dto;
 
+import com.epsel.epsel_api.modules.configurations.enums.TariffStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,5 +22,6 @@ public class WaterTariffConfigurationResponseDTO {
     private BigDecimal taxPercentage;
     private LocalDate effectiveDate;
     private Boolean active;
+    private TariffStatus status;
 
 }

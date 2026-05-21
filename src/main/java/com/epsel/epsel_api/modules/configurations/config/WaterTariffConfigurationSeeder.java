@@ -2,6 +2,7 @@ package com.epsel.epsel_api.modules.configurations.config;
 
 import com.epsel.epsel_api.modules.configurations.entities.ServiceZone;
 import com.epsel.epsel_api.modules.configurations.entities.WaterTariffConfiguration;
+import com.epsel.epsel_api.modules.configurations.enums.TariffStatus;
 import com.epsel.epsel_api.modules.configurations.repositories.ServiceZoneRepository;
 import com.epsel.epsel_api.modules.configurations.repositories.WaterTariffConfigurationRepository;
 import lombok.RequiredArgsConstructor;

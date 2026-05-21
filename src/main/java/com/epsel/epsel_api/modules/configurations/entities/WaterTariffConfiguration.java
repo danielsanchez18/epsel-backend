@@ -1,5 +1,6 @@
 package com.epsel.epsel_api.modules.configurations.entities;
 
+import com.epsel.epsel_api.modules.configurations.enums.TariffStatus;
 import com.epsel.epsel_api.shared.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -37,4 +38,7 @@ public class WaterTariffConfiguration extends BaseEntity {
 
     @Column(nullable = false)
     private Boolean active = true;
+
+    private TariffStatus status;
+
 }
