@@ -1,10 +1,13 @@
 package com.epsel.epsel_api.modules.readings.repositories;
 
 import com.epsel.epsel_api.modules.readings.entities.MeterReading;
+import com.epsel.epsel_api.modules.readings.enums.ReadingStatus;
 import com.epsel.epsel_api.modules.supplies.entities.Supply;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,6 +15,16 @@ public interface MeterReadingRepository extends
         JpaRepository<MeterReading, UUID>,
         JpaSpecificationExecutor<MeterReading> {
 
-    Optional<MeterReading> findTopBySupplyOrderByReadingDateDesc(Supply supply);
+    Boolean existsBySupplyAndReadingDateBetweenAndStatusIn(
+            Supply supply,
+            LocalDate startDate,
+            LocalDate endDate,
+            List<ReadingStatus> statuses
+    );
 
+    Optional<MeterReading> findTopBySupplyAndStatusInAndIdNotOrderByReadingDateDesc(
+            Supply supply,
+            List<ReadingStatus> statuses,
+            UUID id
+    );
 }

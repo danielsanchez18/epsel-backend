@@ -22,6 +22,8 @@ public class CreateMeterReadingDTO {
     @NotNull(message = "Fecha de lectura es requerida")
     private LocalDate readingDate;
 
+    private String meterPhotoUrl;
+    private String ocrValue;
     private String observations;
 
 }

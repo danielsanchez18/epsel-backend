@@ -5,22 +5,31 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
-import java.util.UUID;
-
 @Getter
 @Setter
 @Builder
 public class MeterReadingResponseDTO {
 
-    private UUID id;
-    private UUID supplyId;
+    private String id;
+
+    private String supplyId;
     private String supplyNumber;
+
+    private String customerName;
+    private String meterNumber;
+
     private Integer previousReading;
     private Integer currentReading;
     private Integer consumption;
-    private LocalDate readingDate;
+
+    private String readingDate;
+
     private ReadingStatus status;
+
+    private String meterPhotoUrl;
+
+    private String ocrValue;
+
     private String observations;
 
 }

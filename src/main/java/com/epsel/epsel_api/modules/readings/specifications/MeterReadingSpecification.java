@@ -10,7 +10,8 @@ import java.util.UUID;
 public class MeterReadingSpecification {
 
     public static Specification<MeterReading> search(
-            UUID supplyId,
+            String search,
+            UUID zoneId,
             ReadingStatus status,
             LocalDate startDate,
             LocalDate endDate
@@ -19,10 +20,22 @@ public class MeterReadingSpecification {
         return (root, query, cb) -> {
 
             var predicate = cb.conjunction();
+
             predicate = cb.and(predicate, cb.isFalse(root.get("deleted")));
 
-            if (supplyId != null) {
-                predicate = cb.and(predicate, cb.equal(root.get("supply").get("id"), supplyId));
+            if (search != null && !search.isBlank()) {
+
+                String like = "%" + search.toLowerCase() + "%";
+
+                predicate = cb.and(predicate, cb.or(
+                        cb.like(cb.lower(root.get("supply").get("supplyNumber")), like),
+                        cb.like(cb.lower(root.get("supply").get("meterNumber")), like),
+                        cb.like(cb.lower(root.get("supply").get("customer").get("fullName")), like))
+                );
+            }
+
+            if (zoneId != null) {
+                predicate = cb.and(predicate, cb.equal(root.get("supply").get("property").get("zone").get("id"), zoneId));
             }
 
             if (status != null) {

@@ -61,6 +61,7 @@ public class Supply extends BaseEntity {
     @Column(length = 500)
     private String cutOffReason;
 
+    @Column
     private Integer lastReading;
 
 }

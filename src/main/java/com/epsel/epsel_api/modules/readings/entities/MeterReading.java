@@ -19,15 +19,15 @@ public class MeterReading extends BaseEntity {
     @JoinColumn(name = "supply_id")
     private Supply supply;
 
-    /* Lectura previa del medidor */
+    /* Lectura anterior */
     @Column(nullable = false)
     private Integer previousReading;
 
-    /* Lectura actual del medidor */
+    /* Lectura actual */
     @Column(nullable = false)
     private Integer currentReading;
 
-    /* Consumo de agua de m³ */
+    /* Consumo calculado */
     @Column(nullable = false)
     private Integer consumption;
 
@@ -36,9 +36,18 @@ public class MeterReading extends BaseEntity {
     private LocalDate readingDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private ReadingStatus status;
 
+    /* URL foto medidor */
+    @Column
+    private String meterPhotoUrl;
+
+    /* Valor detectado por OCR */
+    @Column
+    private String ocrValue;
+
+    /* Observaciones */
     @Column(length = 500)
     private String observations;
 
