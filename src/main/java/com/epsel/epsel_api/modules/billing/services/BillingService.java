@@ -1,9 +1,11 @@
 package com.epsel.epsel_api.modules.billing.services;
 
 import com.epsel.epsel_api.modules.billing.dto.BillingResponseDTO;
+import com.epsel.epsel_api.modules.billing.enums.BillingStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 public interface BillingService {
@@ -14,4 +16,13 @@ public interface BillingService {
 
     Page<BillingResponseDTO> getBySupply(UUID supplyId, Pageable pageable);
 
+    Page<BillingResponseDTO> search(
+            String billingNumber,
+            String customerName,
+            BillingStatus status,
+            LocalDate startDate,
+            LocalDate endDate,
+            Boolean overdue,
+            Pageable pageable
+    );
 }

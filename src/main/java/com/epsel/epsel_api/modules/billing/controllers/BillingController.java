@@ -1,6 +1,7 @@
 package com.epsel.epsel_api.modules.billing.controllers;
 
 import com.epsel.epsel_api.modules.billing.dto.BillingResponseDTO;
+import com.epsel.epsel_api.modules.billing.enums.BillingStatus;
 import com.epsel.epsel_api.modules.billing.services.BillingService;
 import com.epsel.epsel_api.shared.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
@@ -65,6 +67,41 @@ public class BillingController {
                         .<Page<BillingResponseDTO>>builder()
                         .success(true)
                         .message("Facturas encontradas exitosamente para este suministro")
+                        .data(response)
+                        .build()
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<Page<BillingResponseDTO>>> search(
+            @RequestParam(required = false) String billingNumber,
+            @RequestParam(required = false) String customerName,
+            @RequestParam(required = false) BillingStatus status,
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) Boolean overdue,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<BillingResponseDTO> response =
+                service.search(
+                        billingNumber,
+                        customerName,
+                        status,
+                        startDate,
+                        endDate,
+                        overdue,
+                        pageable
+                );
+
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<Page<BillingResponseDTO>>builder()
+                        .success(true)
+                        .message("Facturas obtenidas exitosamente")
                         .data(response)
                         .build()
         );

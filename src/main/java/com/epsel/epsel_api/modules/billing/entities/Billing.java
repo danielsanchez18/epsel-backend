@@ -17,13 +17,23 @@ import java.time.LocalDate;
 @Setter
 public class Billing extends BaseEntity {
 
+    @Column(nullable = false, unique = true)
+    private String billingNumber;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "supply_id")
     private Supply supply;
 
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "reading_id")
     private MeterReading reading;
+
+    /* Periodo facturado */
+    @Column(nullable = false)
+    private Integer billingMonth;
+
+    @Column(nullable = false)
+    private Integer billingYear;
 
     /* Resumen del consumo */
     @Column(nullable = false)
@@ -45,13 +55,21 @@ public class Billing extends BaseEntity {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
 
-    /* Importe de los impuestos */
+    /* Importe de impuestos */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal taxAmount;
+
+    /* Mora acumulada */
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal lateFeeAmount = BigDecimal.ZERO;
 
     /* Importe total final */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
+
+    /* Importe pagado */
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal amountPaid = BigDecimal.ZERO;
 
     @Column(nullable = false)
     private LocalDate billingDate;
@@ -62,5 +80,11 @@ public class Billing extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BillingStatus status;
+
+    @Column(nullable = false)
+    private Boolean printed = false;
+
+    @Column(length = 500)
+    private String cancelledReason;
 
 }

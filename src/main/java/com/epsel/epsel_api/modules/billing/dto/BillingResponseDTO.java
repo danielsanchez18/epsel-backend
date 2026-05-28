@@ -15,18 +15,39 @@ import java.util.UUID;
 public class BillingResponseDTO {
 
     private UUID id;
+
+    private String billingNumber;
+
     private UUID supplyId;
     private String supplyNumber;
+
     private UUID readingId;
+
+    private String customerName;
+    private String propertyAddress;
+    private String zoneName;
+
+    private Integer billingMonth;
+    private Integer billingYear;
+
     private Integer consumption;
+
     private BigDecimal unitPrice;
     private BigDecimal fixedCharge;
     private BigDecimal taxPercentage;
+
     private BigDecimal subtotal;
     private BigDecimal taxAmount;
+    private BigDecimal lateFeeAmount;
+
     private BigDecimal totalAmount;
+    private BigDecimal amountPaid;
+
     private LocalDate billingDate;
     private LocalDate dueDate;
+
     private BillingStatus status;
+
+    private Boolean printed;
 
 }
