@@ -148,6 +148,11 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
             throw new BadRequestException("Solo se pueden instalar solicitudes aprobadas");
         }
 
+        // Validar que el meterNumber no exista ya
+        if (supplyRepository.existsByMeterNumberAndDeletedFalse(dto.getMeterNumber())) {
+            throw new BadRequestException("El número de medidor ya está registrado en el sistema");
+        }
+
         Supply supply = new Supply();
 
         supply.setProperty(request.getProperty());

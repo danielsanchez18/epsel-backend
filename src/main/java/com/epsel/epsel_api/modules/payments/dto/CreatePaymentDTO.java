@@ -1,6 +1,7 @@
 package com.epsel.epsel_api.modules.payments.dto;
 
 import com.epsel.epsel_api.modules.payments.enums.PaymentMethod;
+import com.epsel.epsel_api.modules.users.entities.User;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -25,5 +26,8 @@ public class CreatePaymentDTO {
 
     private String operationNumber;
     private String observations;
+
+    @NotNull(message = "El usuario que registra el pago es requerido")
+    private UUID registeredBy;
 
 }

@@ -28,4 +28,6 @@ public interface PaymentRepository
 
     Page<Payment> findByBillingIdAndDeletedFalse(UUID billingId, Pageable pageable);
 
+    Boolean existsByOperationNumber(String operationNumber);
+
 }

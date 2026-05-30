@@ -3,6 +3,7 @@ package com.epsel.epsel_api.modules.payments.entities;
 import com.epsel.epsel_api.modules.billing.entities.Billing;
 import com.epsel.epsel_api.modules.payments.enums.PaymentMethod;
 import com.epsel.epsel_api.modules.payments.enums.PaymentStatus;
+import com.epsel.epsel_api.modules.users.entities.User;
 import com.epsel.epsel_api.shared.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -21,6 +22,9 @@ public class Payment extends BaseEntity {
     @JoinColumn(name = "billing_id")
     private Billing billing;
 
+    @Column(nullable = false, unique = true)
+    private String receiptNumber;
+
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
@@ -35,11 +39,19 @@ public class Payment extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime paymentDate;
 
-    /* Número de operación */
     @Column(length = 100)
     private String operationNumber;
 
     @Column(length = 500)
     private String observations;
+
+    @Column(length = 500)
+    private String cancellationReason;
+
+    private LocalDateTime cancelledAt;
+
+    @ManyToOne
+    @JoinColumn(name = "registered_by")
+    private User registeredBy;
 
 }

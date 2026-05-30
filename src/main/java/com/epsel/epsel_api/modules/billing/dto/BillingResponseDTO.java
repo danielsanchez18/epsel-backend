@@ -42,6 +42,7 @@ public class BillingResponseDTO {
 
     private BigDecimal totalAmount;
     private BigDecimal amountPaid;
+    private BigDecimal pendingAmount;
 
     private LocalDate billingDate;
     private LocalDate dueDate;

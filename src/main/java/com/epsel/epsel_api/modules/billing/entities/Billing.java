@@ -1,6 +1,7 @@
 package com.epsel.epsel_api.modules.billing.entities;
 
 import com.epsel.epsel_api.modules.billing.enums.BillingStatus;
+import com.epsel.epsel_api.modules.payments.entities.Payment;
 import com.epsel.epsel_api.modules.readings.entities.MeterReading;
 import com.epsel.epsel_api.modules.supplies.entities.Supply;
 import com.epsel.epsel_api.shared.base.BaseEntity;
@@ -10,6 +11,8 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "billings")
@@ -24,58 +27,58 @@ public class Billing extends BaseEntity {
     @JoinColumn(name = "supply_id")
     private Supply supply;
 
-    @ManyToOne(optional = false)
+    @OneToOne(optional = false)
     @JoinColumn(name = "reading_id")
     private MeterReading reading;
 
-    /* Periodo facturado */
+    @OneToMany(mappedBy = "billing")
+    private List<Payment> payments = new ArrayList<>();
+
     @Column(nullable = false)
     private Integer billingMonth;
 
     @Column(nullable = false)
     private Integer billingYear;
 
-    /* Resumen del consumo */
     @Column(nullable = false)
     private Integer consumption;
 
-    /* Resumen del precio por m³ */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
 
-    /* Resumen de los gastos fijos */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal fixedCharge;
 
-    /* Resumen del porcentaje de impuestos */
     @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal taxPercentage;
 
-    /* Subtotal antes de impuestos */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
 
-    /* Importe de impuestos */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal taxAmount;
 
-    /* Mora acumulada */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal lateFeeAmount = BigDecimal.ZERO;
 
-    /* Importe total final */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
-    /* Importe pagado */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal amountPaid = BigDecimal.ZERO;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal pendingAmount = BigDecimal.ZERO;
 
     @Column(nullable = false)
     private LocalDate billingDate;
 
     @Column(nullable = false)
     private LocalDate dueDate;
+
+    private LocalDate paidDate;
+
+    private LocalDate cancelledDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

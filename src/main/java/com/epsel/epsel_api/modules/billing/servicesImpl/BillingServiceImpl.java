@@ -115,6 +115,7 @@ public class BillingServiceImpl implements BillingService {
         billing.setLateFeeAmount(BigDecimal.ZERO);
         billing.setTotalAmount(total);
         billing.setAmountPaid(BigDecimal.ZERO);
+        billing.setPendingAmount(total);
         billing.setBillingDate(billingDate);
         billing.setDueDate(billingDate.plusDays(billingConfig.getGraceDays()));
         billing.setStatus(BillingStatus.PENDING);
@@ -226,6 +227,7 @@ public class BillingServiceImpl implements BillingService {
 
                 .totalAmount(billing.getTotalAmount())
                 .amountPaid(billing.getAmountPaid())
+                .pendingAmount(billing.getPendingAmount())
 
                 .billingDate(billing.getBillingDate())
                 .dueDate(billing.getDueDate())
