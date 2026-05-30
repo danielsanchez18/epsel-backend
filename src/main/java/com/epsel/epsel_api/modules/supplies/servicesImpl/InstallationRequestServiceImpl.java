@@ -19,6 +19,9 @@ import com.epsel.epsel_api.modules.supplies.repositories.InstallationRequestRepo
 import com.epsel.epsel_api.modules.supplies.repositories.SupplyRepository;
 import com.epsel.epsel_api.modules.supplies.services.InstallationRequestService;
 import com.epsel.epsel_api.modules.supplies.specifications.InstallationRequestSpecification;
+import com.epsel.epsel_api.modules.supplyOperation.entity.SupplyOperation;
+import com.epsel.epsel_api.modules.supplyOperation.enums.SupplyOperationType;
+import com.epsel.epsel_api.modules.supplyOperation.repository.SupplyOperationRepository;
 import com.epsel.epsel_api.shared.exceptions.BadRequestException;
 import com.epsel.epsel_api.shared.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +43,7 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
     private final ServiceFeeConfigurationRepository feeRepository;
     private final SupplyRepository supplyRepository;
     private final AuthUtils authUtils;
+    private final SupplyOperationRepository operationRepository;
 
     @Override
     public InstallationRequestResponseDTO create(
@@ -171,6 +175,13 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
 
         supplyRepository.save(supply);
 
+        registerOperation(
+                supply,
+                SupplyOperationType.INSTALLATION,
+                null,
+                "Instalación inicial del suministro"
+        );
+
         request.setStatus(InstallationRequestStatus.INSTALLED);
         request.setInstallationDate(LocalDate.now());
         request.setInstalledBy(authUtils.getCurrentUser());
@@ -247,6 +258,25 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
                 ) : null)
                 .observations(request.getObservations())
                 .build();
+    }
+
+    private void registerOperation(
+            Supply supply,
+            SupplyOperationType type,
+            String reason,
+            String observations
+    ) {
+
+        SupplyOperation operation = new SupplyOperation();
+
+        operation.setSupply(supply);
+        operation.setOperationType(type);
+        operation.setOperationDate(LocalDate.now());
+        operation.setReason(reason);
+        operation.setPerformedBy(authUtils.getCurrentUser().getNames() + " " + authUtils.getCurrentUser().getLastNames());
+        operation.setObservations(observations);
+
+        operationRepository.save(operation);
     }
 
 }
