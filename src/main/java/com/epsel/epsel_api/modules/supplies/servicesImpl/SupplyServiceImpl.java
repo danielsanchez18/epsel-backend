@@ -118,10 +118,8 @@ public class SupplyServiceImpl implements SupplyService {
 
         Supply supply = getSupply(id);
 
-        if (supply.getStatus() != SupplyStatus.CUT_OFF
-                && supply.getStatus() != SupplyStatus.INACTIVE
-                && supply.getStatus() != SupplyStatus.SUSPENDED) {
-            throw new BadRequestException("Solo se pueden reconectar suministros cortados, inactivos o suspendidos");
+        if (supply.getStatus() != SupplyStatus.CUT_OFF) {
+            throw new BadRequestException("Solo se pueden reconectar suministros cortados");
         }
 
         supply.setStatus(SupplyStatus.ACTIVE);
