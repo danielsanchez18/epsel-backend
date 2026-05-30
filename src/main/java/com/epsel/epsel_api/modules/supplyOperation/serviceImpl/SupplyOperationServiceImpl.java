@@ -1,5 +1,7 @@
 package com.epsel.epsel_api.modules.supplyOperation.serviceImpl;
 
+import com.epsel.epsel_api.modules.auth.utils.AuthUtils;
+import com.epsel.epsel_api.modules.supplies.entities.Supply;
 import com.epsel.epsel_api.modules.supplyOperation.dto.response.SupplyOperationResponseDTO;
 import com.epsel.epsel_api.modules.supplyOperation.entity.SupplyOperation;
 import com.epsel.epsel_api.modules.supplyOperation.enums.SupplyOperationType;
@@ -20,6 +22,43 @@ import java.util.UUID;
 public class SupplyOperationServiceImpl implements SupplyOperationService {
 
     private final SupplyOperationRepository repository;
+    private final AuthUtils authUtils;
+
+    @Override
+    public void registerOperation(
+            Supply supply,
+            SupplyOperationType operationType,
+            String reason,
+            String observations
+    ) {
+
+        SupplyOperation operation =
+                new SupplyOperation();
+
+        operation.setSupply(supply);
+
+        operation.setOperationType(
+                operationType
+        );
+
+        operation.setOperationDate(
+                LocalDate.now()
+        );
+
+        operation.setReason(
+                reason
+        );
+
+        operation.setObservations(
+                observations
+        );
+
+        operation.setPerformedBy(
+                authUtils.getCurrentUser().getNames() + " " + authUtils.getCurrentUser().getLastNames()
+        );
+
+        repository.save(operation);
+    }
 
     @Override
     public SupplyOperationResponseDTO getById(UUID id) {

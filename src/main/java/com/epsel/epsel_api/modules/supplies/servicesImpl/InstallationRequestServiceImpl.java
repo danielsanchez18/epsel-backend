@@ -22,6 +22,10 @@ import com.epsel.epsel_api.modules.supplies.specifications.InstallationRequestSp
 import com.epsel.epsel_api.modules.supplyOperation.entity.SupplyOperation;
 import com.epsel.epsel_api.modules.supplyOperation.enums.SupplyOperationType;
 import com.epsel.epsel_api.modules.supplyOperation.repository.SupplyOperationRepository;
+import com.epsel.epsel_api.modules.supplyWorkOrder.entity.SupplyWorkOrder;
+import com.epsel.epsel_api.modules.supplyWorkOrder.enums.WorkOrderStatus;
+import com.epsel.epsel_api.modules.supplyWorkOrder.enums.WorkOrderType;
+import com.epsel.epsel_api.modules.supplyWorkOrder.repository.SupplyWorkOrderRepository;
 import com.epsel.epsel_api.shared.exceptions.BadRequestException;
 import com.epsel.epsel_api.shared.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +48,7 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
     private final SupplyRepository supplyRepository;
     private final AuthUtils authUtils;
     private final SupplyOperationRepository operationRepository;
+    private final SupplyWorkOrderRepository supplyWorkOrderRepository;
 
     @Override
     public InstallationRequestResponseDTO create(
@@ -121,6 +126,23 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
         request.setApprovedBy(authUtils.getCurrentUser());
 
         InstallationRequest saved = repository.save(request);
+
+        // Auto create supply with PENDING_INSTALLATION status
+        Supply supply = new Supply();
+        supply.setProperty(saved.getProperty());
+        supply.setCustomer(saved.getCustomer());
+        supply.setInstallationRequest(saved);
+        supply.setStatus(SupplyStatus.PENDING_INSTALLATION);
+        supply.setConnected(false);
+        supply.setSupplyType(saved.getProperty().getType());
+        supply.setSupplyNumber(generateSupplyNumber());
+        supply.setInternalReference(saved.getInternalReference());
+        supply.setInstallationDate(LocalDate.now());
+        supply.setLastReading(0);
+        supply.setMeterNumber("PEND_INSTALL_" + supply.getSupplyNumber());
+        
+        Supply savedSupply = supplyRepository.save(supply);
+
         return mapResponse(saved);
     }
 
