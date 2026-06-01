@@ -58,4 +58,6 @@ public interface PaymentRepository
     """)
     List<MonthlyPaymentProjection> getPaymentsByMonth(Integer year);
 
+    List<Payment> findByDeletedFalse(Pageable pageable);
+
 }

@@ -1,0 +1,17 @@
+package com.epsel.epsel_api.modules.incidents.enums;
+
+public enum IncidentType {
+
+    BILLING_COMPLAINT,
+    PAYMENT_COMPLAINT,
+    SERVICE_INTERRUPTION,
+    LOW_PRESSURE,
+    WATER_LEAK,
+    METER_DAMAGE,
+    METER_REPLACEMENT,
+    ABNORMAL_CONSUMPTION,
+    OCR_ANOMALY,
+    READING_ANOMALY,
+    SUPPLY_CUT_COMPLAINT,
+    OTHER
+}

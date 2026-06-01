@@ -6,6 +6,7 @@ import com.epsel.epsel_api.modules.supplies.entities.Supply;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -27,4 +28,8 @@ public interface MeterReadingRepository extends
             List<ReadingStatus> statuses,
             UUID id
     );
+
+    long countByStatusAndDeletedFalse(ReadingStatus status);
+
+    List<MeterReading> findByDeletedFalse(Pageable pageable);
 }

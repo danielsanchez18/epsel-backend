@@ -22,4 +22,6 @@ public interface InstallationRequestRepository
 
     Boolean existsByPropertyAndInternalReferenceAndStatusIn(Property property, String internalReference, List<InstallationRequestStatus> pending);
 
+    long countByStatusAndDeletedFalse(InstallationRequestStatus status);
+
 }

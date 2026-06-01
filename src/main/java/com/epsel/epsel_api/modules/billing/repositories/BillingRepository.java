@@ -63,6 +63,18 @@ public interface BillingRepository extends
     """)
     List<MonthlyBillingProjection> getBillingByMonth(Integer year);
 
+    @Query("""
+        SELECT
+            MONTH(b.billingDate) as month,
+            COALESCE(SUM(b.consumption), 0) as total
+        FROM Billing b
+        WHERE YEAR(b.billingDate) = :year
+        AND b.deleted = false
+        GROUP BY MONTH(b.billingDate)
+        ORDER BY MONTH(b.billingDate)
+    """)
+    List<MonthlyBillingProjection> getConsumptionByMonth(Integer year);
+
     @Query("SELECT COUNT(b) FROM Billing b WHERE MONTH(b.createdAt) = :month AND YEAR(b.createdAt) = :year AND b.status = :status AND b.deleted = false")
     long countByStatusAndCreatedAtMonthAndYear(
             @Param("status") BillingStatus status,
@@ -83,5 +95,6 @@ public interface BillingRepository extends
             @Param("year") Integer year
     );
 
+    List<Billing> findByDeletedFalse(Pageable pageable);
 
 }
