@@ -41,4 +41,10 @@ public interface SupplyRepository extends
             @Param("year") int year
     );
 
+    long countByDeletedFalse();
+
+    long countByDeletedFalseAndCreatedAtAfter(java.time.LocalDateTime dateTime);
+
+    long countByStatusAndDeletedFalseAndCreatedAtAfter(SupplyStatus status, java.time.LocalDateTime dateTime);
+
 }

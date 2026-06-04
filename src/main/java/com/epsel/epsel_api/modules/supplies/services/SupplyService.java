@@ -42,4 +42,5 @@ public interface SupplyService {
             SuspendSupplyDTO dto
     );
 
+    com.epsel.epsel_api.modules.supplies.dto.SupplyKpisDTO getKpis();
 }

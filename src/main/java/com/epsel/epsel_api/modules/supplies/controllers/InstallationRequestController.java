@@ -3,6 +3,7 @@ package com.epsel.epsel_api.modules.supplies.controllers;
 import com.epsel.epsel_api.modules.supplies.dto.CreateInstallationRequestDTO;
 import com.epsel.epsel_api.modules.supplies.dto.InstallSupplyDTO;
 import com.epsel.epsel_api.modules.supplies.dto.InstallationRequestResponseDTO;
+import com.epsel.epsel_api.modules.supplies.dto.ApplicationKpisDTO;
 import com.epsel.epsel_api.modules.supplies.services.InstallationRequestService;
 import com.epsel.epsel_api.shared.responses.ApiResponse;
 import jakarta.validation.Valid;
@@ -128,4 +129,17 @@ public class InstallationRequestController {
         );
     }
 
+    @GetMapping("/kpis")
+    public ResponseEntity<ApiResponse<ApplicationKpisDTO>> getKpis() {
+        ApplicationKpisDTO response = service.getKpis();
+
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<ApplicationKpisDTO>builder()
+                        .success(true)
+                        .message("KPIs de solicitudes obtenidos exitosamente")
+                        .data(response)
+                        .build()
+        );
+    }
 }

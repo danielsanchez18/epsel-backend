@@ -34,8 +34,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import com.epsel.epsel_api.modules.supplies.dto.ApplicationKpisDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -279,6 +281,34 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
                                 (request.getRejectedBy().getLastNames() != null ? " " + request.getRejectedBy().getLastNames() : "")
                 ) : null)
                 .observations(request.getObservations())
+                .build();
+    }
+
+
+    @Override
+    public ApplicationKpisDTO getKpis() {
+        long pendingApplications = repository.countByStatusAndDeletedFalse(InstallationRequestStatus.PENDING);
+
+        LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        long applicationsChangeThisMonth = repository.countByDeletedFalseAndCreatedAtAfter(startOfMonth);
+
+        long approvedApplications = repository.countByStatusAndDeletedFalse(InstallationRequestStatus.APPROVED);
+        long installedToday = repository.countByStatusAndDeletedFalseAndInstallationDate(InstallationRequestStatus.INSTALLED, LocalDate.now());
+
+        long rejectedApplications = repository.countByStatusAndDeletedFalse(InstallationRequestStatus.REJECTED);
+        long rejectedApplicationsChangeThisMonth = repository.countByStatusAndDeletedFalseAndRejectedDateAfter(InstallationRequestStatus.REJECTED, startOfMonth.toLocalDate());
+
+        LocalDateTime last30Days = LocalDateTime.now().minusDays(30);
+        java.math.BigDecimal projectedRevenue = repository.sumProjectedRevenueAfter(last30Days);
+
+        return ApplicationKpisDTO.builder()
+                .pendingApplications(pendingApplications)
+                .applicationsChangeThisMonth(applicationsChangeThisMonth)
+                .approvedApplications(approvedApplications)
+                .installedToday(installedToday)
+                .rejectedApplications(rejectedApplications)
+                .rejectedApplicationsChangeThisMonth(rejectedApplicationsChangeThisMonth)
+                .projectedRevenue(projectedRevenue)
                 .build();
     }
 

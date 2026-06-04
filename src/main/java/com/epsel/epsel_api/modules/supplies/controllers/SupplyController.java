@@ -2,6 +2,7 @@ package com.epsel.epsel_api.modules.supplies.controllers;
 
 import com.epsel.epsel_api.modules.supplies.dto.ReconnectSupplyDTO;
 import com.epsel.epsel_api.modules.supplies.dto.SupplyDetailsDTO;
+import com.epsel.epsel_api.modules.supplies.dto.SupplyKpisDTO;
 import com.epsel.epsel_api.modules.supplies.dto.SupplyResponseDTO;
 import com.epsel.epsel_api.modules.supplies.dto.SuspendSupplyDTO;
 import com.epsel.epsel_api.modules.supplies.enums.SupplyStatus;
@@ -197,6 +198,20 @@ public class SupplyController {
                         .<SupplyResponseDTO>builder()
                         .success(true)
                         .message("Suministro reconectado")
+                        .data(response)
+                        .build()
+        );
+    }
+
+    @GetMapping("/kpis")
+    public ResponseEntity<ApiResponse<SupplyKpisDTO>> getKpis() {
+        SupplyKpisDTO response = service.getKpis();
+
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<SupplyKpisDTO>builder()
+                        .success(true)
+                        .message("KPIs de suministros obtenidos")
                         .data(response)
                         .build()
         );

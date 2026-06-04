@@ -4,6 +4,7 @@ import com.epsel.epsel_api.modules.users.dto.CreateUserDTO;
 import com.epsel.epsel_api.modules.users.dto.UpdateUserDTO;
 import com.epsel.epsel_api.modules.users.dto.UserResponseDTO;
 import com.epsel.epsel_api.modules.users.dto.UserSearchDTO;
+import com.epsel.epsel_api.modules.users.dto.WorkerKpisDTO;
 import com.epsel.epsel_api.modules.users.enums.UserStatus;
 import com.epsel.epsel_api.modules.users.services.UserService;
 import com.epsel.epsel_api.shared.responses.ApiResponse;
@@ -117,6 +118,18 @@ public class UserController {
                         .success(true)
                         .message("Usuario eliminado exitosamente")
                         .data(null)
+                        .build()
+        );
+    }
+
+    @GetMapping("/kpis")
+    public ResponseEntity<ApiResponse<WorkerKpisDTO>> getWorkerKpis() {
+        WorkerKpisDTO response = userService.getWorkerKpis();
+        return ResponseEntity.ok(
+                ApiResponse.<WorkerKpisDTO>builder()
+                        .success(true)
+                        .message("KPIs de personal obtenidos exitosamente")
+                        .data(response)
                         .build()
         );
     }

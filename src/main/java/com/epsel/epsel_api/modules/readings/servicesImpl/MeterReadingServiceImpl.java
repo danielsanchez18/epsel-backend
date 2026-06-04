@@ -2,6 +2,7 @@ package com.epsel.epsel_api.modules.readings.servicesImpl;
 
 import com.epsel.epsel_api.modules.readings.dto.CreateMeterReadingDTO;
 import com.epsel.epsel_api.modules.readings.dto.MeterReadingResponseDTO;
+import com.epsel.epsel_api.modules.readings.dto.ReadingKpisDTO;
 import com.epsel.epsel_api.modules.readings.entities.MeterReading;
 import com.epsel.epsel_api.modules.readings.enums.ReadingStatus;
 import com.epsel.epsel_api.modules.readings.repositories.MeterReadingRepository;
@@ -199,6 +200,29 @@ public class MeterReadingServiceImpl implements MeterReadingService {
                 .meterPhotoUrl(reading.getMeterPhotoUrl())
                 .ocrValue(reading.getOcrValue())
                 .observations(reading.getObservations())
+                .build();
+    }
+
+    @Override
+    public ReadingKpisDTO getKpis() {
+        java.time.LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
+        long registeredToday = repository.countByDeletedFalseAndCreatedAtAfter(startOfToday);
+
+        long pending = repository.countByStatusAndDeletedFalse(ReadingStatus.RECORDED);
+        long validated = repository.countByStatusAndDeletedFalse(ReadingStatus.VALIDATED);
+        long billed = repository.countByStatusAndDeletedFalse(ReadingStatus.BILLED);
+        long cancelled = repository.countByStatusAndDeletedFalse(ReadingStatus.CANCELLED);
+
+        LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
+        long monthConsumption = repository.sumConsumptionByReadingDateAfterAndDeletedFalse(startOfMonth);
+
+        return ReadingKpisDTO.builder()
+                .registeredToday(registeredToday)
+                .pending(pending)
+                .validated(validated)
+                .billed(billed)
+                .cancelled(cancelled)
+                .monthConsumption(monthConsumption)
                 .build();
     }
 }

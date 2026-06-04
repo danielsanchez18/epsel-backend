@@ -32,4 +32,9 @@ public interface MeterReadingRepository extends
     long countByStatusAndDeletedFalse(ReadingStatus status);
 
     List<MeterReading> findByDeletedFalse(Pageable pageable);
+
+    long countByDeletedFalseAndCreatedAtAfter(java.time.LocalDateTime dateTime);
+
+    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(mr.consumption), 0) FROM MeterReading mr WHERE mr.deleted = false AND mr.readingDate >= :startDate")
+    long sumConsumptionByReadingDateAfterAndDeletedFalse(java.time.LocalDate startDate);
 }

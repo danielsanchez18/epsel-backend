@@ -60,4 +60,10 @@ public interface PaymentRepository
 
     List<Payment> findByDeletedFalse(Pageable pageable);
 
+    @Query("SELECT p FROM Payment p WHERE p.billing.supply.customer.id = :customerId AND p.status = com.epsel.epsel_api.modules.payments.enums.PaymentStatus.COMPLETED AND p.deleted = false ORDER BY p.paymentDate DESC")
+    List<Payment> findLatestCompletedPaymentByCustomerId(@Param("customerId") UUID customerId, Pageable pageable);
+
+    @Query("SELECT p FROM Payment p WHERE p.billing.supply.customer.id = :customerId AND p.deleted = false")
+    org.springframework.data.domain.Page<Payment> findByCustomerIdAndDeletedFalse(@Param("customerId") UUID customerId, Pageable pageable);
 }
+

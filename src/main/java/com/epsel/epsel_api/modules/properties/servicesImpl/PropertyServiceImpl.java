@@ -16,10 +16,17 @@ import com.epsel.epsel_api.modules.supplies.repositories.SupplyRepository;
 import com.epsel.epsel_api.shared.exceptions.BadRequestException;
 import com.epsel.epsel_api.shared.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import com.epsel.epsel_api.modules.properties.dto.PropertyKpisDTO;
+import com.epsel.epsel_api.modules.supplyWorkOrder.enums.WorkOrderStatus;
+import com.epsel.epsel_api.modules.supplyWorkOrder.enums.WorkOrderType;
+import com.epsel.epsel_api.modules.supplyWorkOrder.repository.SupplyWorkOrderRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.UUID;
 
 @Service
@@ -30,6 +37,7 @@ public class PropertyServiceImpl implements PropertyService {
     private final CustomerRepository customerRepository;
     private final ServiceZoneRepository zoneRepository;
     private final SupplyRepository supplyRepository;
+    private final SupplyWorkOrderRepository supplyWorkOrderRepository;
 
     @Override
     public PropertyResponseDTO create(CreatePropertyDTO dto) {
@@ -323,6 +331,41 @@ public class PropertyServiceImpl implements PropertyService {
                 .zoneName(
                         property.getZone().getName()
                 )
+                .build();
+    }
+
+    @Override
+    public PropertyKpisDTO getKpis() {
+        long totalProperties = repository.countByDeletedFalse();
+
+        int month = LocalDate.now().getMonthValue();
+        int year = LocalDate.now().getYear();
+        long propertiesChangeThisMonth = repository.countCreatedInMonth(month, year);
+
+        long activeProperties = repository.countActiveProperties();
+        double activePropertiesPercentage = totalProperties > 0 
+                ? (double) activeProperties * 100.0 / totalProperties 
+                : 0.0;
+
+        long propertiesWithoutSupply = repository.countPropertiesWithoutSupply();
+
+        long pendingReconnections = supplyWorkOrderRepository.countByTypeAndStatusInAndDeletedFalse(
+                WorkOrderType.RECONNECTION,
+                Arrays.asList(WorkOrderStatus.PENDING, WorkOrderStatus.ASSIGNED, WorkOrderStatus.IN_PROGRESS)
+        );
+
+        long criticalDebtProperties = repository.countCriticalDebtProperties();
+        long propertiesWithHighDebtCount = repository.countCriticalDebtPropertiesOver1000();
+
+        return PropertyKpisDTO.builder()
+                .totalProperties(totalProperties)
+                .propertiesChangeThisMonth(propertiesChangeThisMonth)
+                .activeProperties(activeProperties)
+                .activePropertiesPercentage(activePropertiesPercentage)
+                .propertiesWithoutSupply(propertiesWithoutSupply)
+                .pendingReconnections(pendingReconnections)
+                .criticalDebtProperties(criticalDebtProperties)
+                .propertiesWithHighDebtCount(propertiesWithHighDebtCount)
                 .build();
     }
 }

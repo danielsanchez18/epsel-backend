@@ -1,6 +1,7 @@
 package com.epsel.epsel_api.modules.properties.controller;
 
 import com.epsel.epsel_api.modules.properties.dto.CreatePropertyDTO;
+import com.epsel.epsel_api.modules.properties.dto.PropertyKpisDTO;
 import com.epsel.epsel_api.modules.properties.dto.PropertyResponseDTO;
 import com.epsel.epsel_api.modules.properties.dto.UpdatePropertyDTO;
 import com.epsel.epsel_api.modules.properties.enums.PropertyType;
@@ -99,6 +100,19 @@ public class PropertyController {
                         .<Void>builder()
                         .success(true)
                         .message("Propiedad eliminada exitosamente")
+                        .build());
+    }
+
+    @GetMapping("/kpis")
+    public ResponseEntity<ApiResponse<PropertyKpisDTO>> getKpis() {
+        PropertyKpisDTO response = service.getKpis();
+
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<PropertyKpisDTO>builder()
+                        .success(true)
+                        .message("KPIs de propiedades obtenidos exitosamente")
+                        .data(response)
                         .build());
     }
 }

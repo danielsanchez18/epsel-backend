@@ -31,8 +31,10 @@ public interface PaymentService {
 
     Page<PaymentResponseDTO> getByBilling(UUID billingId, Pageable pageable);
 
+    Page<PaymentResponseDTO> getByCustomer(UUID customerId, Pageable pageable);
+
     PaymentResponseDTO cancel(
             UUID paymentId,
             CancelPaymentDTO dto
     );
-}
+}

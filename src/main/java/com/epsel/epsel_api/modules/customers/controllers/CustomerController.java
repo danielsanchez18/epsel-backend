@@ -1,6 +1,8 @@
 package com.epsel.epsel_api.modules.customers.controllers;
 
 import com.epsel.epsel_api.modules.customers.dto.CreateCustomerDTO;
+import com.epsel.epsel_api.modules.customers.dto.CustomerKpisDTO;
+import com.epsel.epsel_api.modules.customers.dto.CustomerDetailKpisDTO;
 import com.epsel.epsel_api.modules.customers.dto.CustomerResponseDTO;
 import com.epsel.epsel_api.modules.customers.dto.UpdateCustomerDTO;
 import com.epsel.epsel_api.modules.customers.enums.CustomerType;
@@ -104,6 +106,34 @@ public class CustomerController {
                         .<Void>builder()
                         .success(true)
                         .message("Cliente eliminado exitosamente")
+                        .build()
+        );
+    }
+
+    @GetMapping("/kpis")
+    public ResponseEntity<ApiResponse<CustomerKpisDTO>> getKpis() {
+        CustomerKpisDTO response = service.getKpis();
+
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<CustomerKpisDTO>builder()
+                        .success(true)
+                        .message("KPIs de clientes obtenidos exitosamente")
+                        .data(response)
+                        .build()
+        );
+    }
+
+    @GetMapping("/{id}/kpis")
+    public ResponseEntity<ApiResponse<CustomerDetailKpisDTO>> getDetailKpis(@PathVariable UUID id) {
+        CustomerDetailKpisDTO response = service.getDetailKpis(id);
+
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<CustomerDetailKpisDTO>builder()
+                        .success(true)
+                        .message("KPIs de detalle de cliente obtenidos exitosamente")
+                        .data(response)
                         .build()
         );
     }

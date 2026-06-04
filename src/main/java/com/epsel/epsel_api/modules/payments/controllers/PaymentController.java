@@ -114,6 +114,27 @@ public class PaymentController {
         );
     }
 
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<ApiResponse<Page<PaymentResponseDTO>>> getByCustomer(
+            @PathVariable UUID customerId,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<PaymentResponseDTO> response = service.getByCustomer(customerId, pageable);
+
+        return ResponseEntity.ok(
+                ApiResponse
+                    .<Page<PaymentResponseDTO>>builder()
+                    .success(true)
+                    .message("Pagos del cliente obtenidos exitosamente")
+                    .data(response)
+                    .build()
+        );
+    }
+
+
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<ApiResponse<PaymentResponseDTO>> cancel(
             @PathVariable UUID id,

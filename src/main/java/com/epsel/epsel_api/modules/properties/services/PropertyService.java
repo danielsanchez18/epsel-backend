@@ -25,4 +25,6 @@ public interface PropertyService {
     );
 
     void delete(UUID id);
+
+    com.epsel.epsel_api.modules.properties.dto.PropertyKpisDTO getKpis();
 }

@@ -24,4 +24,8 @@ public interface CustomerService {
     );
 
     void delete(UUID id);
-}
+
+    com.epsel.epsel_api.modules.customers.dto.CustomerKpisDTO getKpis();
+
+    com.epsel.epsel_api.modules.customers.dto.CustomerDetailKpisDTO getDetailKpis(UUID customerId);
+}

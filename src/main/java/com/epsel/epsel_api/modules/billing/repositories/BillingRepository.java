@@ -97,4 +97,21 @@ public interface BillingRepository extends
 
     List<Billing> findByDeletedFalse(Pageable pageable);
 
-}
+    @Query("SELECT COUNT(DISTINCT b.supply.customer) FROM Billing b WHERE b.status = com.epsel.epsel_api.modules.billing.enums.BillingStatus.OVERDUE AND b.deleted = false")
+    long countDelinquentCustomers();
+
+    @Query("SELECT COALESCE(SUM(b.pendingAmount), 0) FROM Billing b WHERE b.status = com.epsel.epsel_api.modules.billing.enums.BillingStatus.OVERDUE AND b.deleted = false")
+    BigDecimal sumDelinquentAmount();
+
+    @Query("SELECT COALESCE(SUM(b.pendingAmount), 0) FROM Billing b WHERE b.supply.customer.id = :customerId AND b.status <> com.epsel.epsel_api.modules.billing.enums.BillingStatus.PAID AND b.deleted = false")
+    BigDecimal sumPendingAmountByCustomerId(@Param("customerId") UUID customerId);
+
+    @Query("SELECT COUNT(b) FROM Billing b WHERE b.supply.customer.id = :customerId AND b.status = com.epsel.epsel_api.modules.billing.enums.BillingStatus.OVERDUE AND b.deleted = false")
+    long countOverdueBillsByCustomerId(@Param("customerId") UUID customerId);
+
+    @Query("SELECT COALESCE(AVG(b.consumption), 0.0) FROM Billing b WHERE b.supply.customer.id = :customerId AND b.deleted = false")
+    double averageConsumptionByCustomerId(@Param("customerId") UUID customerId);
+
+    @Query("SELECT b.consumption FROM Billing b WHERE b.supply.customer.id = :customerId AND b.deleted = false ORDER BY b.billingYear DESC, b.billingMonth DESC")
+    List<Integer> findConsumptionsByCustomerIdOrderByDateDesc(@Param("customerId") UUID customerId, org.springframework.data.domain.Pageable pageable);
+}

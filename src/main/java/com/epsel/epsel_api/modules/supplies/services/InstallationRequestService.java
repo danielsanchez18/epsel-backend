@@ -28,4 +28,5 @@ public interface InstallationRequestService {
 
     InstallationRequestResponseDTO getById(UUID id);
 
+    com.epsel.epsel_api.modules.supplies.dto.ApplicationKpisDTO getKpis();
 }

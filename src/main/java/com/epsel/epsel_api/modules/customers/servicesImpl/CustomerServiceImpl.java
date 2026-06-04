@@ -10,18 +10,33 @@ import com.epsel.epsel_api.modules.customers.services.CustomerService;
 import com.epsel.epsel_api.modules.customers.specifications.CustomerSpecification;
 import com.epsel.epsel_api.shared.exceptions.BadRequestException;
 import com.epsel.epsel_api.shared.exceptions.ResourceNotFoundException;
+import com.epsel.epsel_api.modules.customers.dto.CustomerKpisDTO;
+import com.epsel.epsel_api.modules.customers.dto.CustomerDetailKpisDTO;
+import com.epsel.epsel_api.modules.billing.repositories.BillingRepository;
+import com.epsel.epsel_api.modules.payments.repositories.PaymentRepository;
+import com.epsel.epsel_api.modules.incidents.repository.IncidentRepository;
+import com.epsel.epsel_api.modules.payments.entities.Payment;
+import com.epsel.epsel_api.modules.incidents.enums.IncidentStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository repository;
+    private final BillingRepository billingRepository;
+    private final PaymentRepository paymentRepository;
+    private final IncidentRepository incidentRepository;
 
     @Override
     public CustomerResponseDTO create(CreateCustomerDTO dto) {
@@ -94,6 +109,91 @@ public class CustomerServiceImpl implements CustomerService {
                 .email(customer.getEmail())
                 .createdAt(customer.getCreatedAt())
                 .updatedAt(customer.getUpdatedAt())
+                .build();
+    }
+
+    @Override
+    public CustomerKpisDTO getKpis() {
+        long totalCustomers = repository.countByDeletedFalse();
+
+        int month = LocalDate.now().getMonthValue();
+        int year = LocalDate.now().getYear();
+        long customersChangeThisMonth = repository.countCreatedInMonth(month, year);
+
+        long activeCustomers = repository.countActiveCustomers();
+        double activeCustomersPercentage = totalCustomers > 0 
+                ? (double) activeCustomers * 100.0 / totalCustomers 
+                : 0.0;
+
+        long delinquentCustomers = billingRepository.countDelinquentCustomers();
+        java.math.BigDecimal delinquentAmount = billingRepository.sumDelinquentAmount();
+
+        LocalDateTime last30Days = LocalDateTime.now().minusDays(30);
+        long newCustomersLast30Days = repository.countByDeletedFalseAndCreatedAtAfter(last30Days);
+
+        return CustomerKpisDTO.builder()
+                .totalCustomers(totalCustomers)
+                .customersChangeThisMonth(customersChangeThisMonth)
+                .activeCustomers(activeCustomers)
+                .activeCustomersPercentage(activeCustomersPercentage)
+                .delinquentCustomers(delinquentCustomers)
+                .delinquentAmount(delinquentAmount)
+                .newCustomersLast30Days(newCustomersLast30Days)
+                .build();
+    }
+
+    @Override
+    public CustomerDetailKpisDTO getDetailKpis(UUID customerId) {
+        repository.findByIdAndDeletedFalse(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado"));
+
+        BigDecimal totalDebt = billingRepository.sumPendingAmountByCustomerId(customerId);
+        long overdueBillsCount = billingRepository.countOverdueBillsByCustomerId(customerId);
+        double averageConsumption = billingRepository.averageConsumptionByCustomerId(customerId);
+
+        double consumptionChangePercentage = 0.0;
+        List<Integer> consumptions = billingRepository.findConsumptionsByCustomerIdOrderByDateDesc(
+                customerId, PageRequest.of(0, 2)
+        );
+        if (consumptions.size() >= 2) {
+            int latest = consumptions.get(0);
+            int previous = consumptions.get(1);
+            if (previous > 0) {
+                consumptionChangePercentage = (double) (latest - previous) * 100.0 / previous;
+            }
+        }
+
+        LocalDate lastPaymentDate = null;
+        boolean lastPaymentDelayed = false;
+        List<Payment> payments = paymentRepository.findLatestCompletedPaymentByCustomerId(
+                customerId, PageRequest.of(0, 1)
+        );
+        if (!payments.isEmpty()) {
+            Payment lastPayment = payments.get(0);
+            lastPaymentDate = lastPayment.getPaymentDate().toLocalDate();
+            if (lastPayment.getBilling() != null && lastPayment.getBilling().getDueDate() != null) {
+                lastPaymentDelayed = lastPaymentDate.isAfter(lastPayment.getBilling().getDueDate());
+            }
+        }
+
+        long activeIncidentsCount = incidentRepository.countByCustomerIdAndStatusInAndDeletedFalse(
+                customerId, List.of(IncidentStatus.OPEN, IncidentStatus.IN_PROGRESS)
+        );
+
+        LocalDate thirtyDaysAgo = LocalDate.now().minusDays(30);
+        long recentIncidentsCount = incidentRepository.countByCustomerIdAndDeletedFalseAndReportedDateAfter(
+                customerId, thirtyDaysAgo
+        );
+
+        return CustomerDetailKpisDTO.builder()
+                .totalDebt(totalDebt)
+                .overdueBillsCount(overdueBillsCount)
+                .averageConsumption(averageConsumption)
+                .consumptionChangePercentage(consumptionChangePercentage)
+                .lastPaymentDate(lastPaymentDate)
+                .lastPaymentDelayed(lastPaymentDelayed)
+                .activeIncidentsCount(activeIncidentsCount)
+                .recentIncidentsCount(recentIncidentsCount)
                 .build();
     }
 }

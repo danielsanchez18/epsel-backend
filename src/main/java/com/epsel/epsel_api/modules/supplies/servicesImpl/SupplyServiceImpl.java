@@ -15,12 +15,18 @@ import com.epsel.epsel_api.modules.supplyOperation.enums.SupplyOperationType;
 import com.epsel.epsel_api.modules.supplyOperation.repository.SupplyOperationRepository;
 import com.epsel.epsel_api.shared.exceptions.BadRequestException;
 import com.epsel.epsel_api.shared.exceptions.ResourceNotFoundException;
+import com.epsel.epsel_api.modules.supplies.dto.SupplyKpisDTO;
+import com.epsel.epsel_api.modules.supplyWorkOrder.enums.WorkOrderStatus;
+import com.epsel.epsel_api.modules.supplyWorkOrder.enums.WorkOrderType;
+import com.epsel.epsel_api.modules.supplyWorkOrder.repository.SupplyWorkOrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.UUID;
 
 @Service
@@ -30,6 +36,7 @@ public class SupplyServiceImpl implements SupplyService {
     private final SupplyRepository repository;
     private final SupplyOperationRepository operationRepository;
     private final AuthUtils authUtils;
+    private final SupplyWorkOrderRepository supplyWorkOrderRepository;
 
     @Override
     public Page<SupplyResponseDTO> findAll(
@@ -233,5 +240,43 @@ public class SupplyServiceImpl implements SupplyService {
         operation.setObservations(observations);
 
         operationRepository.save(operation);
+    }
+
+    @Override
+    public SupplyKpisDTO getKpis() {
+        long totalSupplies = repository.countByDeletedFalse();
+
+        LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        long suppliesChangeThisMonth = repository.countByDeletedFalseAndCreatedAtAfter(startOfMonth);
+
+        long activeSupplies = repository.countByStatusAndDeletedFalse(SupplyStatus.ACTIVE);
+        double activeSuppliesPercentage = totalSupplies > 0 
+                ? (double) activeSupplies * 100.0 / totalSupplies 
+                : 0.0;
+
+        long suspendedSupplies = repository.countByStatusAndDeletedFalse(SupplyStatus.SUSPENDED);
+        long suspendedSuppliesChangeThisMonth = repository.countByStatusAndDeletedFalseAndCreatedAtAfter(SupplyStatus.SUSPENDED, startOfMonth);
+
+        long pendingReconnections = supplyWorkOrderRepository.countByTypeAndStatusInAndDeletedFalse(
+                WorkOrderType.RECONNECTION,
+                Arrays.asList(WorkOrderStatus.PENDING, WorkOrderStatus.ASSIGNED, WorkOrderStatus.IN_PROGRESS)
+        );
+
+        long reconnectionsThisMonth = supplyWorkOrderRepository.countByTypeAndStatusAndDeletedFalseAndUpdatedAtAfter(
+                WorkOrderType.RECONNECTION,
+                WorkOrderStatus.COMPLETED,
+                startOfMonth
+        );
+
+        return SupplyKpisDTO.builder()
+                .totalSupplies(totalSupplies)
+                .suppliesChangeThisMonth(suppliesChangeThisMonth)
+                .activeSupplies(activeSupplies)
+                .activeSuppliesPercentage(activeSuppliesPercentage)
+                .suspendedSupplies(suspendedSupplies)
+                .suspendedSuppliesChangeThisMonth(suspendedSuppliesChangeThisMonth)
+                .pendingReconnections(pendingReconnections)
+                .reconnectionsThisMonth(reconnectionsThisMonth)
+                .build();
     }
 }

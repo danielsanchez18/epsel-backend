@@ -24,5 +24,8 @@ public interface CustomerRepository extends
     @Query("SELECT COUNT(c) FROM Customer c WHERE MONTH(c.createdAt) = :month AND YEAR(c.createdAt) = :year AND c.deleted = false")
     long countCreatedInMonth(@Param("month") int month, @Param("year") int year);
 
+    @Query("SELECT COUNT(DISTINCT s.customer) FROM Supply s WHERE s.status = 'ACTIVE' AND s.deleted = false")
+    long countActiveCustomers();
 
+    long countByDeletedFalseAndCreatedAtAfter(java.time.LocalDateTime dateTime);
 }

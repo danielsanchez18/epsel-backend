@@ -2,6 +2,7 @@ package com.epsel.epsel_api.modules.readings.controllers;
 
 import com.epsel.epsel_api.modules.readings.dto.CreateMeterReadingDTO;
 import com.epsel.epsel_api.modules.readings.dto.MeterReadingResponseDTO;
+import com.epsel.epsel_api.modules.readings.dto.ReadingKpisDTO;
 import com.epsel.epsel_api.modules.readings.enums.ReadingStatus;
 import com.epsel.epsel_api.modules.readings.services.MeterReadingService;
 import com.epsel.epsel_api.shared.responses.ApiResponse;
@@ -104,6 +105,19 @@ public class MeterReadingController {
                         .<MeterReadingResponseDTO>builder()
                         .success(true)
                         .message("Lectura de medidor cancelada exitosamente")
+                        .data(response)
+                        .build());
+    }
+
+    @GetMapping("/kpis")
+    public ResponseEntity<ApiResponse<ReadingKpisDTO>> getKpis() {
+        ReadingKpisDTO response = service.getKpis();
+
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<ReadingKpisDTO>builder()
+                        .success(true)
+                        .message("KPIs de lecturas obtenidos exitosamente")
                         .data(response)
                         .build());
     }

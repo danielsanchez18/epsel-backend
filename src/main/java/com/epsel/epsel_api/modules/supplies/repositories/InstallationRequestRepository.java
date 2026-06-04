@@ -24,4 +24,12 @@ public interface InstallationRequestRepository
 
     long countByStatusAndDeletedFalse(InstallationRequestStatus status);
 
+    long countByDeletedFalseAndCreatedAtAfter(java.time.LocalDateTime dateTime);
+
+    long countByStatusAndDeletedFalseAndInstallationDate(InstallationRequestStatus status, java.time.LocalDate date);
+
+    long countByStatusAndDeletedFalseAndRejectedDateAfter(InstallationRequestStatus status, java.time.LocalDate date);
+
+    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(ir.installationCost), 0) FROM InstallationRequest ir WHERE ir.deleted = false AND ir.createdAt >= :dateTime")
+    java.math.BigDecimal sumProjectedRevenueAfter(java.time.LocalDateTime dateTime);
 }

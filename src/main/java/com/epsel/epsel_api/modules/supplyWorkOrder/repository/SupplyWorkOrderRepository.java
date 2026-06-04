@@ -25,4 +25,8 @@ public interface SupplyWorkOrderRepository extends
 
     List<SupplyWorkOrder> findByDeletedFalse(Pageable pageable);
 
+    long countByTypeAndStatusInAndDeletedFalse(WorkOrderType type, java.util.List<WorkOrderStatus> statuses);
+
+    long countByTypeAndStatusAndDeletedFalseAndUpdatedAtAfter(WorkOrderType type, WorkOrderStatus status, java.time.LocalDateTime dateTime);
+
 }

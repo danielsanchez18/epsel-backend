@@ -34,4 +34,6 @@ public interface UserService {
     void delete(UUID id);
 
     void changeStatus(UUID id, UserStatus status);
+
+    com.epsel.epsel_api.modules.users.dto.WorkerKpisDTO getWorkerKpis();
 }

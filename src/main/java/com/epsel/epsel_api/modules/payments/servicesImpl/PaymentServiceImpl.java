@@ -148,6 +148,14 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    public Page<PaymentResponseDTO> getByCustomer(UUID customerId, Pageable pageable) {
+        return repository
+                .findByCustomerIdAndDeletedFalse(customerId, pageable)
+                .map(this::mapResponse);
+    }
+
+
+    @Override
     public PaymentResponseDTO cancel(
             UUID paymentId,
             CancelPaymentDTO dto

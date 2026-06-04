@@ -29,4 +29,5 @@ public interface MeterReadingService {
 
     MeterReadingResponseDTO cancel(UUID id, String observations);
 
+    com.epsel.epsel_api.modules.readings.dto.ReadingKpisDTO getKpis();
 }
