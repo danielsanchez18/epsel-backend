@@ -21,5 +21,8 @@ public class CustomerResponseDTO {
     private String email;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
+    private UUID createdBy;
+    private UUID updatedBy;
+    private String createdByName;
+    private String updatedByName;
 }

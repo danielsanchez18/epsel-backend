@@ -1,5 +1,6 @@
 package com.epsel.epsel_api.modules.customers.servicesImpl;
 
+import com.epsel.epsel_api.modules.auth.utils.AuthUtils;
 import com.epsel.epsel_api.modules.customers.dto.CreateCustomerDTO;
 import com.epsel.epsel_api.modules.customers.dto.CustomerResponseDTO;
 import com.epsel.epsel_api.modules.customers.dto.UpdateCustomerDTO;
@@ -16,6 +17,7 @@ import com.epsel.epsel_api.modules.billing.repositories.BillingRepository;
 import com.epsel.epsel_api.modules.payments.repositories.PaymentRepository;
 import com.epsel.epsel_api.modules.incidents.repository.IncidentRepository;
 import com.epsel.epsel_api.modules.payments.entities.Payment;
+import com.epsel.epsel_api.modules.users.entities.User;
 import com.epsel.epsel_api.modules.incidents.enums.IncidentStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,6 +39,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final BillingRepository billingRepository;
     private final PaymentRepository paymentRepository;
     private final IncidentRepository incidentRepository;
+    private final AuthUtils authUtils;
 
     @Override
     public CustomerResponseDTO create(CreateCustomerDTO dto) {
@@ -53,6 +56,14 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setPhone(dto.getPhone());
         customer.setEmail(dto.getEmail());
 
+        try {
+            User currentUser = authUtils.getCurrentUser();
+            customer.setCreatedBy(currentUser);
+            customer.setUpdatedBy(currentUser);
+        } catch (Exception e) {
+            // Fallback for seeders/tests
+        }
+
         Customer saved = repository.save(customer);
         return mapResponse(saved);
     }
@@ -66,6 +77,13 @@ public class CustomerServiceImpl implements CustomerService {
         if (dto.getFullName() != null) { customer.setFullName(dto.getFullName()); }
         if (dto.getPhone() != null) { customer.setPhone(dto.getPhone()); }
         if (dto.getEmail() != null) { customer.setEmail(dto.getEmail()); }
+
+        try {
+            User currentUser = authUtils.getCurrentUser();
+            customer.setUpdatedBy(currentUser);
+        } catch (Exception e) {
+            // Fallback for seeders/tests
+        }
 
         Customer saved = repository.save(customer);
         return mapResponse(saved);
@@ -99,6 +117,15 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     private CustomerResponseDTO mapResponse(Customer customer) {
+        String createdByName = "Sistema";
+        String updatedByName = "Sistema";
+
+        if (customer.getCreatedBy() != null) {
+            createdByName = customer.getCreatedBy().getNames() + " " + customer.getCreatedBy().getLastNames();
+        }
+        if (customer.getUpdatedBy() != null) {
+            updatedByName = customer.getUpdatedBy().getNames() + " " + customer.getUpdatedBy().getLastNames();
+        }
 
         return CustomerResponseDTO.builder()
                 .id(customer.getId())
@@ -109,6 +136,10 @@ public class CustomerServiceImpl implements CustomerService {
                 .email(customer.getEmail())
                 .createdAt(customer.getCreatedAt())
                 .updatedAt(customer.getUpdatedAt())
+                .createdBy(customer.getCreatedBy() != null ? customer.getCreatedBy().getId() : null)
+                .updatedBy(customer.getUpdatedBy() != null ? customer.getUpdatedBy().getId() : null)
+                .createdByName(createdByName)
+                .updatedByName(updatedByName)
                 .build();
     }
 

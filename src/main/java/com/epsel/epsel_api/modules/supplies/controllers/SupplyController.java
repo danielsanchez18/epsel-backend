@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,24 +28,11 @@ public class SupplyController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<SupplyResponseDTO>>> findAll(
-            @RequestParam(required = false)
-            String search,
-
-            @RequestParam(required = false)
-            SupplyStatus status,
-
-            @RequestParam(required = false)
-            UUID zoneId,
-
-            @RequestParam(defaultValue = "0")
-            Integer page,
-
-            @RequestParam(defaultValue = "10")
-            Integer size
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) SupplyStatus status,
+            @RequestParam(required = false) UUID zoneId,
+            @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
-
-        Pageable pageable =
-                PageRequest.of(page, size);
 
         Page<SupplyResponseDTO> response =
                 service.findAll(

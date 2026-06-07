@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -58,10 +59,9 @@ public class SupplyWorkOrderController {
             @RequestParam(required = false) UUID supplyId,
             @RequestParam(required = false) WorkOrderType type,
             @RequestParam(required = false) WorkOrderStatus status,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
+            @PageableDefault(size = 10, page = 0) Pageable pageable
+    ) {
 
-        Pageable pageable = PageRequest.of(page, size);
         Page<SupplyWorkOrderResponseDTO> response = service.search(supplyId, type, status, pageable);
 
         return ResponseEntity.ok(

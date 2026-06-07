@@ -29,4 +29,12 @@ public class Customer extends BaseEntity {
     @Column
     private String email;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private com.epsel.epsel_api.modules.users.entities.User createdBy;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "updated_by")
+    private com.epsel.epsel_api.modules.users.entities.User updatedBy;
+
 }

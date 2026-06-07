@@ -8,6 +8,7 @@ import com.epsel.epsel_api.modules.supplies.services.InstallationRequestService;
 import com.epsel.epsel_api.shared.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -97,10 +98,8 @@ public class InstallationRequestController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) InstallationRequestStatus status,
             @RequestParam(required = false) String zoneName,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
-
-        Pageable pageable = PageRequest.of(page, size);
+            @PageableDefault(size = 10, page = 0) Pageable pageable
+    ) {
 
         Page<InstallationRequestResponseDTO> response = service.findAll(search, status, zoneName, pageable);
 
