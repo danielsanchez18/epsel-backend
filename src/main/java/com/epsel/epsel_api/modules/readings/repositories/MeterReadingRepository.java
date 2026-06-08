@@ -3,10 +3,13 @@ package com.epsel.epsel_api.modules.readings.repositories;
 import com.epsel.epsel_api.modules.readings.entities.MeterReading;
 import com.epsel.epsel_api.modules.readings.enums.ReadingStatus;
 import com.epsel.epsel_api.modules.supplies.entities.Supply;
+import com.epsel.epsel_api.modules.users.mappers.UserMapper;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +38,12 @@ public interface MeterReadingRepository extends
 
     long countByDeletedFalseAndCreatedAtAfter(java.time.LocalDateTime dateTime);
 
-    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(mr.consumption), 0) FROM MeterReading mr WHERE mr.deleted = false AND mr.readingDate >= :startDate")
+    @Query("SELECT COALESCE(SUM(mr.consumption), 0) FROM MeterReading mr WHERE mr.deleted = false AND mr.readingDate >= :startDate")
     long sumConsumptionByReadingDateAfterAndDeletedFalse(java.time.LocalDate startDate);
+
+    Optional<MeterReading>
+    findTopBySupplyAndDeletedFalseOrderByReadingDateDesc(
+            Supply supply
+    );
+
 }
