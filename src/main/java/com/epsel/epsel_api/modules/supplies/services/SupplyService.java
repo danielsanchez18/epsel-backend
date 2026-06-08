@@ -42,5 +42,9 @@ public interface SupplyService {
             SuspendSupplyDTO dto
     );
 
+    com.epsel.epsel_api.shared.responses.ImportPreviewResponse<com.epsel.epsel_api.modules.supplies.dto.CreateSupplyBulkDTO> previewImport(org.springframework.web.multipart.MultipartFile file);
+
+    void createBulk(java.util.List<com.epsel.epsel_api.modules.supplies.dto.CreateSupplyBulkDTO> dtos);
+
     com.epsel.epsel_api.modules.supplies.dto.SupplyKpisDTO getKpis();
 }

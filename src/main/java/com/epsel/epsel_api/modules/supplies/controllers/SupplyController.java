@@ -191,6 +191,31 @@ public class SupplyController {
         );
     }
 
+    @PostMapping("/import/preview")
+    public ResponseEntity<ApiResponse<com.epsel.epsel_api.shared.responses.ImportPreviewResponse<com.epsel.epsel_api.modules.supplies.dto.CreateSupplyBulkDTO>>> previewImport(
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        com.epsel.epsel_api.shared.responses.ImportPreviewResponse<com.epsel.epsel_api.modules.supplies.dto.CreateSupplyBulkDTO> response = service.previewImport(file);
+        return ResponseEntity.ok(
+                ApiResponse.<com.epsel.epsel_api.shared.responses.ImportPreviewResponse<com.epsel.epsel_api.modules.supplies.dto.CreateSupplyBulkDTO>>builder()
+                        .success(true)
+                        .message("Previsualización de importación generada")
+                        .data(response)
+                        .build()
+        );
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<ApiResponse<Void>> createBulk(@Valid @RequestBody java.util.List<com.epsel.epsel_api.modules.supplies.dto.CreateSupplyBulkDTO> dtos) {
+        service.createBulk(dtos);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .success(true)
+                        .message("Suministros importados exitosamente")
+                        .data(null)
+                        .build()
+        );
+    }
+
     @GetMapping("/kpis")
     public ResponseEntity<ApiResponse<SupplyKpisDTO>> getKpis() {
         SupplyKpisDTO response = service.getKpis();

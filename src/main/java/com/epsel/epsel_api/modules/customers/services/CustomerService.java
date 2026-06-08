@@ -28,4 +28,8 @@ public interface CustomerService {
     com.epsel.epsel_api.modules.customers.dto.CustomerKpisDTO getKpis();
 
     com.epsel.epsel_api.modules.customers.dto.CustomerDetailKpisDTO getDetailKpis(UUID customerId);
+
+    com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreateCustomerDTO> previewImport(org.springframework.web.multipart.MultipartFile file);
+
+    void createBulk(java.util.List<CreateCustomerDTO> dtos);
 }

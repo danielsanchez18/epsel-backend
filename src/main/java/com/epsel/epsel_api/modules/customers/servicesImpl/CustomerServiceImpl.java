@@ -227,4 +227,84 @@ public class CustomerServiceImpl implements CustomerService {
                 .recentIncidentsCount(recentIncidentsCount)
                 .build();
     }
+    @Override
+    public com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreateCustomerDTO> previewImport(org.springframework.web.multipart.MultipartFile file) {
+        if (!com.epsel.epsel_api.shared.utils.ExcelImportHelper.hasExcelFormat(file)) {
+            throw new com.epsel.epsel_api.shared.exceptions.BadRequestException("Formato de archivo inválido. Por favor suba un archivo Excel o CSV.");
+        }
+
+        java.util.List<java.util.List<String>> rows = com.epsel.epsel_api.shared.utils.ExcelImportHelper.readExcel(file);
+        
+        java.util.List<CreateCustomerDTO> validData = new java.util.ArrayList<>();
+        java.util.List<com.epsel.epsel_api.shared.responses.ImportErrorDTO> errors = new java.util.ArrayList<>();
+
+        for (int i = 0; i < rows.size(); i++) {
+            java.util.List<String> row = rows.get(i);
+            int rowNum = i + 2; 
+            java.util.List<String> rowErrors = new java.util.ArrayList<>();
+            
+            // Expected columns: Tipo(PERSON/COMPANY), DNI/RUC, Nombre/Razón Social, Teléfono, Email
+            if (row.size() < 5) {
+                rowErrors.add("La fila no contiene todas las columnas requeridas (Tipo, Documento, Nombre Completo, Teléfono, Email)");
+                errors.add(new com.epsel.epsel_api.shared.responses.ImportErrorDTO(rowNum, rowErrors));
+                continue;
+            }
+
+            String typeStr = row.get(0);
+            String documentNumber = row.get(1);
+            String fullName = row.get(2);
+            String phone = row.get(3);
+            String email = row.get(4);
+
+            CustomerType type = null;
+            if (typeStr != null && (typeStr.equalsIgnoreCase("PERSON") || typeStr.equalsIgnoreCase("PERSONA"))) {
+                type = CustomerType.PERSON;
+            } else if (typeStr != null && (typeStr.equalsIgnoreCase("COMPANY") || typeStr.equalsIgnoreCase("EMPRESA"))) {
+                type = CustomerType.COMPANY;
+            } else {
+                rowErrors.add("Tipo de cliente inválido (Debe ser PERSON/PERSONA o COMPANY/EMPRESA)");
+            }
+
+            if (documentNumber == null || documentNumber.isEmpty()) {
+                rowErrors.add("El número de documento es requerido");
+            } else if (repository.existsByDocumentNumberAndDeletedFalse(documentNumber)) {
+                rowErrors.add("El número de documento ya se encuentra registrado");
+            }
+
+            if (fullName == null || fullName.isEmpty()) {
+                rowErrors.add("El nombre completo o razón social es requerido");
+            }
+
+            if (rowErrors.isEmpty()) {
+                CreateCustomerDTO dto = new CreateCustomerDTO();
+                dto.setType(type);
+                dto.setDocumentNumber(documentNumber);
+                dto.setFullName(fullName);
+                dto.setPhone(phone);
+                dto.setEmail(email);
+                validData.add(dto);
+            } else {
+                errors.add(new com.epsel.epsel_api.shared.responses.ImportErrorDTO(rowNum, rowErrors));
+            }
+        }
+
+        return com.epsel.epsel_api.shared.responses.ImportPreviewResponse.<CreateCustomerDTO>builder()
+                .totalRows(rows.size())
+                .validCount(validData.size())
+                .invalidCount(errors.size())
+                .validData(validData)
+                .errors(errors)
+                .build();
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void createBulk(java.util.List<CreateCustomerDTO> dtos) {
+        for (CreateCustomerDTO dto : dtos) {
+            if (repository.existsByDocumentNumberAndDeletedFalse(dto.getDocumentNumber())) {
+                continue; 
+            }
+            create(dto);
+        }
+    }
 }

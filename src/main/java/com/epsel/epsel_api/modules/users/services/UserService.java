@@ -36,4 +36,8 @@ public interface UserService {
     void changeStatus(UUID id, UserStatus status);
 
     com.epsel.epsel_api.modules.users.dto.WorkerKpisDTO getWorkerKpis();
+
+    com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreateUserDTO> previewImport(MultipartFile file);
+
+    void createBulk(java.util.List<CreateUserDTO> dtos);
 }

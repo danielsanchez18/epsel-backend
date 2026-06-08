@@ -128,6 +128,31 @@ public class InstallationRequestController {
         );
     }
 
+    @PostMapping("/import/preview")
+    public ResponseEntity<ApiResponse<com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreateInstallationRequestDTO>>> previewImport(
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreateInstallationRequestDTO> response = service.previewImport(file);
+        return ResponseEntity.ok(
+                ApiResponse.<com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreateInstallationRequestDTO>>builder()
+                        .success(true)
+                        .message("Previsualización de importación generada")
+                        .data(response)
+                        .build()
+        );
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<ApiResponse<Void>> createBulk(@Valid @RequestBody java.util.List<CreateInstallationRequestDTO> dtos) {
+        service.createBulk(dtos);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .success(true)
+                        .message("Solicitudes importadas exitosamente")
+                        .data(null)
+                        .build()
+        );
+    }
+
     @GetMapping("/kpis")
     public ResponseEntity<ApiResponse<ApplicationKpisDTO>> getKpis() {
         ApplicationKpisDTO response = service.getKpis();

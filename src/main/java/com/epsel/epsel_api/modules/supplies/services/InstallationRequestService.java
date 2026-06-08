@@ -28,5 +28,9 @@ public interface InstallationRequestService {
 
     InstallationRequestResponseDTO getById(UUID id);
 
+    com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreateInstallationRequestDTO> previewImport(org.springframework.web.multipart.MultipartFile file);
+
+    void createBulk(java.util.List<CreateInstallationRequestDTO> dtos);
+
     com.epsel.epsel_api.modules.supplies.dto.ApplicationKpisDTO getKpis();
 }

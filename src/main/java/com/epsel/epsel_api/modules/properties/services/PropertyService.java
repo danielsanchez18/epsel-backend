@@ -27,4 +27,8 @@ public interface PropertyService {
     void delete(UUID id);
 
     com.epsel.epsel_api.modules.properties.dto.PropertyKpisDTO getKpis();
+
+    com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreatePropertyDTO> previewImport(org.springframework.web.multipart.MultipartFile file);
+
+    void createBulk(java.util.List<CreatePropertyDTO> dtos);
 }

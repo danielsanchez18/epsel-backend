@@ -133,4 +133,29 @@ public class UserController {
                         .build()
         );
     }
+
+    @PostMapping("/import/preview")
+    public ResponseEntity<ApiResponse<com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreateUserDTO>>> previewImport(
+            @RequestParam("file") MultipartFile file) {
+        com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreateUserDTO> response = userService.previewImport(file);
+        return ResponseEntity.ok(
+                ApiResponse.<com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreateUserDTO>>builder()
+                        .success(true)
+                        .message("Previsualización de importación generada")
+                        .data(response)
+                        .build()
+        );
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<ApiResponse<Void>> createBulk(@Valid @RequestBody java.util.List<CreateUserDTO> dtos) {
+        userService.createBulk(dtos);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .success(true)
+                        .message("Usuarios importados exitosamente")
+                        .data(null)
+                        .build()
+        );
+    }
 }

@@ -136,4 +136,29 @@ public class CustomerController {
                         .build()
         );
     }
+
+    @PostMapping("/import/preview")
+    public ResponseEntity<ApiResponse<com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreateCustomerDTO>>> previewImport(
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreateCustomerDTO> response = service.previewImport(file);
+        return ResponseEntity.ok(
+                ApiResponse.<com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreateCustomerDTO>>builder()
+                        .success(true)
+                        .message("Previsualización de importación generada")
+                        .data(response)
+                        .build()
+        );
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<ApiResponse<Void>> createBulk(@Valid @RequestBody java.util.List<CreateCustomerDTO> dtos) {
+        service.createBulk(dtos);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .success(true)
+                        .message("Clientes importados exitosamente")
+                        .data(null)
+                        .build()
+        );
+    }
 }
