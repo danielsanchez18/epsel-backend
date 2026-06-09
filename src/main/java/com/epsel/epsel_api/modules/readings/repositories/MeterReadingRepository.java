@@ -39,7 +39,13 @@ public interface MeterReadingRepository extends
     long countByDeletedFalseAndCreatedAtAfter(java.time.LocalDateTime dateTime);
 
     @Query("SELECT COALESCE(SUM(mr.consumption), 0) FROM MeterReading mr WHERE mr.deleted = false AND mr.readingDate >= :startDate")
-    long sumConsumptionByReadingDateAfterAndDeletedFalse(java.time.LocalDate startDate);
+    long sumConsumptionByReadingDateAfterAndDeletedFalse(@org.springframework.data.repository.query.Param("startDate") java.time.LocalDate startDate);
+
+    @Query("SELECT COUNT(DISTINCT mr.supply) FROM MeterReading mr WHERE mr.deleted = false AND MONTH(mr.readingDate) = :month AND YEAR(mr.readingDate) = :year")
+    long countSuppliesWithReadingsThisMonth(
+            @org.springframework.data.repository.query.Param("month") int month,
+            @org.springframework.data.repository.query.Param("year") int year
+    );
 
     Optional<MeterReading>
     findTopBySupplyAndDeletedFalseOrderByReadingDateDesc(

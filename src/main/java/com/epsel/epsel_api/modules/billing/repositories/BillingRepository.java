@@ -31,6 +31,9 @@ public interface BillingRepository extends
 
     long countByStatusAndDeletedFalse(BillingStatus status);
 
+    @Query("SELECT COUNT(b) FROM Billing b WHERE b.deleted = false AND (b.status = com.epsel.epsel_api.modules.billing.enums.BillingStatus.OVERDUE OR (b.status IN (com.epsel.epsel_api.modules.billing.enums.BillingStatus.PENDING, com.epsel.epsel_api.modules.billing.enums.BillingStatus.PARTIALLY_PAID) AND b.dueDate < CURRENT_DATE))")
+    long countRealOverdueBills();
+
     @Query("""
         SELECT COALESCE(SUM(b.totalAmount),0)
         FROM Billing b

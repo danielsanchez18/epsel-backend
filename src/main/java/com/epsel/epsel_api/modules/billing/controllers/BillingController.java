@@ -76,7 +76,7 @@ public class BillingController {
     public ResponseEntity<ApiResponse<Page<BillingResponseDTO>>> search(
             @RequestParam(required = false) String billingNumber,
             @RequestParam(required = false) String customerName,
-            @RequestParam(required = false) BillingStatus status,
+            @RequestParam(required = false) java.util.List<BillingStatus> status,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) Boolean overdue,

@@ -222,7 +222,7 @@ public class DashboardServiceImpl implements DashboardService {
         List<DashboardAlertDTO> alerts = new ArrayList<>();
 
         // 1. Facturas vencidas (HIGH)
-        long overdueBillings = billingRepository.countByStatusAndDeletedFalse(BillingStatus.OVERDUE);
+        long overdueBillings = billingRepository.countRealOverdueBills();
         if (overdueBillings > 0) {
             alerts.add(DashboardAlertDTO.builder()
                     .title("Facturas vencidas")
@@ -278,6 +278,18 @@ public class DashboardServiceImpl implements DashboardService {
                     .title("Solicitudes de instalación pendientes")
                     .description("Existen " + pendingInstallations + " solicitudes de instalación pendientes")
                     .severity("LOW")
+                    .build());
+        }
+
+        // 7. Suministros sin lectura este mes (MEDIUM)
+        long totalActiveSupplies = supplyRepository.countByStatusAndDeletedFalse(SupplyStatus.ACTIVE);
+        long suppliesWithReadings = meterReadingRepository.countSuppliesWithReadingsThisMonth(LocalDate.now().getMonthValue(), LocalDate.now().getYear());
+        long pendingToRead = totalActiveSupplies - suppliesWithReadings;
+        if (pendingToRead > 0) {
+            alerts.add(DashboardAlertDTO.builder()
+                    .title("Suministros pendientes de lectura")
+                    .description("Faltan registrar lecturas para " + pendingToRead + " suministros activos este mes")
+                    .severity("MEDIUM")
                     .build());
         }
 

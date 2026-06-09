@@ -19,7 +19,7 @@ public interface BillingService {
     Page<BillingResponseDTO> search(
             String billingNumber,
             String customerName,
-            BillingStatus status,
+            java.util.List<BillingStatus> status,
             LocalDate startDate,
             LocalDate endDate,
             Boolean overdue,

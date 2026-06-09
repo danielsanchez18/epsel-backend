@@ -12,7 +12,7 @@ public class BillingSpecification {
     public static Specification<Billing> search(
             String billingNumber,
             String customerName,
-            BillingStatus status,
+            java.util.List<BillingStatus> status,
             LocalDate startDate,
             LocalDate endDate,
             Boolean overdue
@@ -53,11 +53,11 @@ public class BillingSpecification {
                 );
             }
 
-            if (status != null) {
+            if (status != null && !status.isEmpty()) {
 
                 predicate = cb.and(
                         predicate,
-                        cb.equal(root.get("status"), status)
+                        root.get("status").in(status)
                 );
             }
 

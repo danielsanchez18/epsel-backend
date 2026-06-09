@@ -1,6 +1,7 @@
 package com.epsel.epsel_api.modules.customers.entities;
 
 import com.epsel.epsel_api.modules.customers.enums.CustomerType;
+import com.epsel.epsel_api.modules.users.entities.User;
 import com.epsel.epsel_api.shared.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -31,10 +32,10 @@ public class Customer extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
-    private com.epsel.epsel_api.modules.users.entities.User createdBy;
+    private User createdBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "updated_by")
-    private com.epsel.epsel_api.modules.users.entities.User updatedBy;
+    private User updatedBy;
 
 }
