@@ -17,12 +17,15 @@ public class DashboardController {
     private final DashboardService service;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<DashboardResponseDTO>> getDashboard() {
+    public ResponseEntity<ApiResponse<DashboardResponseDTO>> getDashboard(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer month,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer year
+    ) {
         return ResponseEntity.ok(
                 ApiResponse.<DashboardResponseDTO>builder()
                         .success(true)
                         .message("Dashboard obtenido exitosamente")
-                        .data(service.getDashboard())
+                        .data(service.getDashboard(month, year))
                         .build()
         );
     }

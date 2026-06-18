@@ -158,4 +158,32 @@ public class UserController {
                         .build()
         );
     }
+
+    @PatchMapping("/{id}/reset-password")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@PathVariable UUID id) {
+        userService.resetPassword(id);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .success(true)
+                        .message("Contraseña reestablecida exitosamente")
+                        .data(null)
+                        .build()
+        );
+    }
+
+    @PatchMapping("/profile/change-password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @Valid @RequestBody com.epsel.epsel_api.modules.users.dto.ChangePasswordDTO dto,
+            org.springframework.security.core.Authentication authentication
+    ) {
+        String email = authentication.getName();
+        userService.changePassword(email, dto);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .success(true)
+                        .message("Contraseña actualizada exitosamente")
+                        .data(null)
+                        .build()
+        );
+    }
 }

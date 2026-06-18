@@ -13,8 +13,8 @@ public class MeterReadingSpecification {
             String search,
             UUID zoneId,
             ReadingStatus status,
-            LocalDate startDate,
-            LocalDate endDate
+            java.time.LocalDateTime startDate,
+            java.time.LocalDateTime endDate
     ) {
 
         return (root, query, cb) -> {
@@ -43,12 +43,14 @@ public class MeterReadingSpecification {
             }
 
             if (startDate != null) {
-                predicate = cb.and(predicate, cb.greaterThanOrEqualTo(root.get("readingDate"), startDate));
+                predicate = cb.and(predicate, cb.greaterThanOrEqualTo(root.get("createdAt"), startDate));
             }
 
             if (endDate != null) {
-                predicate = cb.and(predicate, cb.lessThanOrEqualTo(root.get("readingDate"), endDate));
+                predicate = cb.and(predicate, cb.lessThanOrEqualTo(root.get("createdAt"), endDate));
             }
+
+            query.orderBy(cb.desc(root.get("updatedAt")));
 
             return predicate;
         };

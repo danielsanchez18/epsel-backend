@@ -21,6 +21,8 @@ public interface CustomerRepository extends
 
     long countByDeletedFalse();
 
+    long countByDeletedFalseAndCreatedAtBefore(java.time.LocalDateTime dateTime);
+
     @Query("SELECT COUNT(c) FROM Customer c WHERE MONTH(c.createdAt) = :month AND YEAR(c.createdAt) = :year AND c.deleted = false")
     long countCreatedInMonth(@Param("month") int month, @Param("year") int year);
 

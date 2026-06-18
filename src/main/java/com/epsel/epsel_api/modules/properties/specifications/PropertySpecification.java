@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class PropertySpecification {
 
-    public static Specification<Property> search(String search, PropertyType type, UUID customerId) {
+    public static Specification<Property> search(String search, PropertyType type, UUID customerId, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
 
         return (root, query, cb) -> {
 
@@ -34,6 +34,16 @@ public class PropertySpecification {
             if (customerId != null) {
                 predicate = cb.and(predicate, cb.equal(root.get("customer").get("id"), customerId));
             }
+
+            if (startDate != null) {
+                predicate = cb.and(predicate, cb.greaterThanOrEqualTo(root.get("createdAt"), startDate));
+            }
+
+            if (endDate != null) {
+                predicate = cb.and(predicate, cb.lessThanOrEqualTo(root.get("createdAt"), endDate));
+            }
+
+            query.orderBy(cb.desc(root.get("createdAt")));
 
             return predicate;
         };

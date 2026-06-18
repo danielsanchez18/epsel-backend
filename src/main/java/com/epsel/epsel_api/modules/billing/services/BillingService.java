@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public interface BillingService {
@@ -13,6 +14,8 @@ public interface BillingService {
     BillingResponseDTO generate(UUID readingId);
 
     BillingResponseDTO getById(UUID id);
+
+    com.epsel.epsel_api.modules.billing.dto.BillingKpiDTO getKpis(LocalDateTime startDate, LocalDateTime endDate);
 
     Page<BillingResponseDTO> getBySupply(UUID supplyId, Pageable pageable);
 

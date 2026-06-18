@@ -57,6 +57,21 @@ public class PaymentController {
                     .build());
     }
 
+    @GetMapping("/kpis")
+    public ResponseEntity<ApiResponse<com.epsel.epsel_api.modules.payments.dto.PaymentKpiDTO>> getKpis(
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<com.epsel.epsel_api.modules.payments.dto.PaymentKpiDTO>builder()
+                        .success(true)
+                        .message("KPIs de pagos obtenidos exitosamente")
+                        .data(service.getKpis(startDate, endDate))
+                        .build()
+        );
+    }
+
     @GetMapping
     public ResponseEntity<ApiResponse<Page<PaymentResponseDTO>>> search(
             @RequestParam(required = false) String receiptNumber,

@@ -2,6 +2,7 @@ package com.epsel.epsel_api.modules.payments.services;
 
 import com.epsel.epsel_api.modules.payments.dto.CancelPaymentDTO;
 import com.epsel.epsel_api.modules.payments.dto.CreatePaymentDTO;
+import com.epsel.epsel_api.modules.payments.dto.PaymentKpiDTO;
 import com.epsel.epsel_api.modules.payments.dto.PaymentResponseDTO;
 import com.epsel.epsel_api.modules.payments.enums.PaymentMethod;
 import com.epsel.epsel_api.modules.payments.enums.PaymentStatus;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public interface PaymentService {
@@ -16,6 +18,8 @@ public interface PaymentService {
     PaymentResponseDTO create(CreatePaymentDTO dto);
 
     PaymentResponseDTO getById(UUID id);
+
+    PaymentKpiDTO getKpis(LocalDateTime startDate, LocalDateTime endDate);
 
     Page<PaymentResponseDTO> search(
             String receiptNumber,
@@ -37,4 +41,4 @@ public interface PaymentService {
             UUID paymentId,
             CancelPaymentDTO dto
     );
-}
+}

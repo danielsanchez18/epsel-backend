@@ -20,6 +20,8 @@ public interface CustomerService {
     Page<CustomerResponseDTO> search(
             String search,
             CustomerType type,
+            java.time.LocalDateTime startDate,
+            java.time.LocalDateTime endDate,
             Pageable pageable
     );
 

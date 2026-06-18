@@ -98,10 +98,12 @@ public class InstallationRequestController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) InstallationRequestStatus status,
             @RequestParam(required = false) String zoneName,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate,
             @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
 
-        Page<InstallationRequestResponseDTO> response = service.findAll(search, status, zoneName, pageable);
+        Page<InstallationRequestResponseDTO> response = service.findAll(search, status, zoneName, startDate, endDate, pageable);
 
         return ResponseEntity.ok(
                 ApiResponse
@@ -154,8 +156,11 @@ public class InstallationRequestController {
     }
 
     @GetMapping("/kpis")
-    public ResponseEntity<ApiResponse<ApplicationKpisDTO>> getKpis() {
-        ApplicationKpisDTO response = service.getKpis();
+    public ResponseEntity<ApiResponse<ApplicationKpisDTO>> getKpis(
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate
+    ) {
+        ApplicationKpisDTO response = service.getKpis(startDate, endDate);
 
         return ResponseEntity.ok(
                 ApiResponse

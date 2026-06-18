@@ -154,6 +154,27 @@ public class PaymentServiceImpl implements PaymentService {
                 .map(this::mapResponse);
     }
 
+    @Override
+    public com.epsel.epsel_api.modules.payments.dto.PaymentKpiDTO getKpis(LocalDateTime startDate, LocalDateTime endDate) {
+        BigDecimal totalToday = repository.sumCompletedPaymentsToday();
+        BigDecimal totalPeriod = repository.sumCompletedPaymentsBetweenDates(startDate, endDate);
+        BigDecimal totalCash = repository.sumCompletedPaymentsByMethodBetweenDates(PaymentMethod.CASH, startDate, endDate);
+        BigDecimal totalYape = repository.sumCompletedPaymentsByMethodBetweenDates(PaymentMethod.YAPE, startDate, endDate);
+        BigDecimal totalTransfer = repository.sumCompletedPaymentsByMethodsBetweenDates(
+                java.util.List.of(PaymentMethod.BANK_TRANSFER, PaymentMethod.PLIN, PaymentMethod.CARD),
+                startDate,
+                endDate
+        );
+
+        return com.epsel.epsel_api.modules.payments.dto.PaymentKpiDTO.builder()
+                .totalToday(totalToday)
+                .totalPeriod(totalPeriod)
+                .totalCash(totalCash)
+                .totalYape(totalYape)
+                .totalTransfer(totalTransfer)
+                .build();
+    }
+
 
     @Override
     public PaymentResponseDTO cancel(

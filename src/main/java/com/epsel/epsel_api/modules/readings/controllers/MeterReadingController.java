@@ -63,8 +63,8 @@ public class MeterReadingController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) UUID zoneId,
             @RequestParam(required = false) ReadingStatus status,
-            @RequestParam(required = false) LocalDate startDate,
-            @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
 
@@ -110,8 +110,11 @@ public class MeterReadingController {
     }
 
     @GetMapping("/kpis")
-    public ResponseEntity<ApiResponse<ReadingKpisDTO>> getKpis() {
-        ReadingKpisDTO response = service.getKpis();
+    public ResponseEntity<ApiResponse<ReadingKpisDTO>> getKpis(
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate
+    ) {
+        ReadingKpisDTO response = service.getKpis(startDate, endDate);
 
         return ResponseEntity.ok(
                 ApiResponse

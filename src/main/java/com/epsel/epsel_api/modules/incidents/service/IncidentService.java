@@ -14,6 +14,11 @@ import java.util.UUID;
 
 public interface IncidentService {
 
+    com.epsel.epsel_api.modules.incidents.dto.IncidentKpiDTO getKpis(
+            java.time.LocalDateTime startDate,
+            java.time.LocalDateTime endDate
+    );
+
     IncidentResponseDTO create(
             CreateIncidentDTO dto
     );

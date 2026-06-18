@@ -23,6 +23,8 @@ public interface InstallationRequestService {
             String search,
             InstallationRequestStatus status,
             String zoneName,
+            java.time.LocalDateTime startDate,
+            java.time.LocalDateTime endDate,
             Pageable pageable
     );
 
@@ -32,5 +34,5 @@ public interface InstallationRequestService {
 
     void createBulk(java.util.List<CreateInstallationRequestDTO> dtos);
 
-    com.epsel.epsel_api.modules.supplies.dto.ApplicationKpisDTO getKpis();
+    com.epsel.epsel_api.modules.supplies.dto.ApplicationKpisDTO getKpis(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
 }

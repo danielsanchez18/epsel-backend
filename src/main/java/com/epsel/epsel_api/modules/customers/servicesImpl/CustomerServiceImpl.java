@@ -99,10 +99,15 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Page<CustomerResponseDTO> search(String search, CustomerType type, Pageable pageable) {
+    public Page<CustomerResponseDTO> search(
+            String search, 
+            CustomerType type, 
+            java.time.LocalDateTime startDate,
+            java.time.LocalDateTime endDate,
+            Pageable pageable) {
 
         return repository.findAll(
-                CustomerSpecification.search(search, type), pageable
+                CustomerSpecification.search(search, type, startDate, endDate), pageable
         ).map(this::mapResponse);
     }
 

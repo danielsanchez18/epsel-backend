@@ -65,5 +65,19 @@ public interface PaymentRepository
 
     @Query("SELECT p FROM Payment p WHERE p.billing.supply.customer.id = :customerId AND p.deleted = false")
     org.springframework.data.domain.Page<Payment> findByCustomerIdAndDeletedFalse(@Param("customerId") UUID customerId, Pageable pageable);
+
+    // KPIs
+
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.status = 'COMPLETED' AND p.deleted = false AND DATE(p.paymentDate) = CURRENT_DATE")
+    BigDecimal sumCompletedPaymentsToday();
+
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.status = 'COMPLETED' AND p.deleted = false AND (CAST(:startDate AS timestamp) IS NULL OR p.paymentDate >= :startDate) AND (CAST(:endDate AS timestamp) IS NULL OR p.paymentDate <= :endDate)")
+    BigDecimal sumCompletedPaymentsBetweenDates(@Param("startDate") java.time.LocalDateTime startDate, @Param("endDate") java.time.LocalDateTime endDate);
+
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.status = 'COMPLETED' AND p.deleted = false AND p.paymentMethod = :method AND (CAST(:startDate AS timestamp) IS NULL OR p.paymentDate >= :startDate) AND (CAST(:endDate AS timestamp) IS NULL OR p.paymentDate <= :endDate)")
+    BigDecimal sumCompletedPaymentsByMethodBetweenDates(@Param("method") com.epsel.epsel_api.modules.payments.enums.PaymentMethod method, @Param("startDate") java.time.LocalDateTime startDate, @Param("endDate") java.time.LocalDateTime endDate);
+
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.status = 'COMPLETED' AND p.deleted = false AND p.paymentMethod IN :methods AND (CAST(:startDate AS timestamp) IS NULL OR p.paymentDate >= :startDate) AND (CAST(:endDate AS timestamp) IS NULL OR p.paymentDate <= :endDate)")
+    BigDecimal sumCompletedPaymentsByMethodsBetweenDates(@Param("methods") List<com.epsel.epsel_api.modules.payments.enums.PaymentMethod> methods, @Param("startDate") java.time.LocalDateTime startDate, @Param("endDate") java.time.LocalDateTime endDate);
 }
 

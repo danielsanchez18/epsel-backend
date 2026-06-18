@@ -36,6 +36,19 @@ public class IncidentServiceImpl implements IncidentService {
     private final SupplyRepository supplyRepository;
 
     @Override
+    public com.epsel.epsel_api.modules.incidents.dto.IncidentKpiDTO getKpis(
+            java.time.LocalDateTime startDate,
+            java.time.LocalDateTime endDate
+    ) {
+        return com.epsel.epsel_api.modules.incidents.dto.IncidentKpiDTO.builder()
+                .total(repository.countTotalForDashboard(startDate, endDate))
+                .open(repository.countOpenForDashboard(startDate, endDate))
+                .inProgress(repository.countInProgressForDashboard(startDate, endDate))
+                .resolved(repository.countResolvedForDashboard(startDate, endDate))
+                .build();
+    }
+
+    @Override
     public IncidentResponseDTO create(CreateIncidentDTO dto) {
 
         Customer customer = null;

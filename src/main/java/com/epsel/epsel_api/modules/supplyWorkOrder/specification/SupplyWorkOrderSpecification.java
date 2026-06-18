@@ -12,7 +12,9 @@ public class SupplyWorkOrderSpecification {
     public static Specification<SupplyWorkOrder> search(
             UUID supplyId,
             WorkOrderType type,
-            WorkOrderStatus status
+            WorkOrderStatus status,
+            java.time.LocalDateTime startDate,
+            java.time.LocalDateTime endDate
     ) {
 
         return (root, query, cb) -> {
@@ -50,6 +52,26 @@ public class SupplyWorkOrderSpecification {
                         cb.equal(
                                 root.get("status"),
                                 status
+                        )
+                );
+            }
+
+            if (startDate != null) {
+                predicate = cb.and(
+                        predicate,
+                        cb.greaterThanOrEqualTo(
+                                root.get("createdAt"),
+                                startDate
+                        )
+                );
+            }
+
+            if (endDate != null) {
+                predicate = cb.and(
+                        predicate,
+                        cb.lessThanOrEqualTo(
+                                root.get("createdAt"),
+                                endDate
                         )
                 );
             }

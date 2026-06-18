@@ -1,6 +1,7 @@
 package com.epsel.epsel_api.modules.properties.services;
 
 import com.epsel.epsel_api.modules.properties.dto.CreatePropertyDTO;
+import com.epsel.epsel_api.modules.properties.dto.PropertyKpisDTO;
 import com.epsel.epsel_api.modules.properties.dto.PropertyResponseDTO;
 import com.epsel.epsel_api.modules.properties.dto.UpdatePropertyDTO;
 import com.epsel.epsel_api.modules.properties.enums.PropertyType;
@@ -21,12 +22,14 @@ public interface PropertyService {
             String search,
             PropertyType type,
             UUID customerId,
+            java.time.LocalDateTime startDate,
+            java.time.LocalDateTime endDate,
             Pageable pageable
     );
 
     void delete(UUID id);
 
-    com.epsel.epsel_api.modules.properties.dto.PropertyKpisDTO getKpis();
+    PropertyKpisDTO getKpis(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
 
     com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreatePropertyDTO> previewImport(org.springframework.web.multipart.MultipartFile file);
 

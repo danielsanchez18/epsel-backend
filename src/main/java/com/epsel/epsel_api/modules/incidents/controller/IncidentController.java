@@ -43,6 +43,21 @@ public class IncidentController {
                         .build());
     }
 
+    @GetMapping("/kpis")
+    public ResponseEntity<ApiResponse<com.epsel.epsel_api.modules.incidents.dto.IncidentKpiDTO>> getKpis(
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<com.epsel.epsel_api.modules.incidents.dto.IncidentKpiDTO>builder()
+                        .success(true)
+                        .message("KPIs de incidencias obtenidos exitosamente")
+                        .data(service.getKpis(startDate, endDate))
+                        .build()
+        );
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<IncidentResponseDTO>> getById(@PathVariable UUID id) {
 

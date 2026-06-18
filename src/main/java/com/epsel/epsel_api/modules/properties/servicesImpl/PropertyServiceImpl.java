@@ -190,6 +190,8 @@ public class PropertyServiceImpl implements PropertyService {
             String search,
             PropertyType type,
             UUID customerId,
+            java.time.LocalDateTime startDate,
+            java.time.LocalDateTime endDate,
             Pageable pageable
     ) {
 
@@ -197,7 +199,9 @@ public class PropertyServiceImpl implements PropertyService {
                 PropertySpecification.search(
                         search,
                         type,
-                        customerId
+                        customerId,
+                        startDate,
+                        endDate
                 ),
                 pageable
         ).map(this::mapResponse);
@@ -335,27 +339,27 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     @Override
-    public PropertyKpisDTO getKpis() {
-        long totalProperties = repository.countByDeletedFalse();
+    public PropertyKpisDTO getKpis(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
+        long totalProperties = repository.countPropertiesByDateRange(startDate, endDate);
 
         int month = LocalDate.now().getMonthValue();
         int year = LocalDate.now().getYear();
         long propertiesChangeThisMonth = repository.countCreatedInMonth(month, year);
 
-        long activeProperties = repository.countActiveProperties();
+        long activeProperties = repository.countActivePropertiesByDateRange(startDate, endDate);
         double activePropertiesPercentage = totalProperties > 0 
                 ? (double) activeProperties * 100.0 / totalProperties 
                 : 0.0;
 
-        long propertiesWithoutSupply = repository.countPropertiesWithoutSupply();
+        long propertiesWithoutSupply = repository.countPropertiesWithoutSupplyByDateRange(startDate, endDate);
 
         long pendingReconnections = supplyWorkOrderRepository.countByTypeAndStatusInAndDeletedFalse(
                 WorkOrderType.RECONNECTION,
                 Arrays.asList(WorkOrderStatus.PENDING, WorkOrderStatus.ASSIGNED, WorkOrderStatus.IN_PROGRESS)
         );
 
-        long criticalDebtProperties = repository.countCriticalDebtProperties();
-        long propertiesWithHighDebtCount = repository.countCriticalDebtPropertiesOver1000();
+        long criticalDebtProperties = repository.countCriticalDebtPropertiesByDateRange(startDate, endDate);
+        long propertiesWithHighDebtCount = repository.countCriticalDebtPropertiesOver1000ByDateRange(startDate, endDate);
 
         return PropertyKpisDTO.builder()
                 .totalProperties(totalProperties)

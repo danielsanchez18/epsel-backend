@@ -80,10 +80,12 @@ public class CustomerController {
     public ResponseEntity<ApiResponse<Page<CustomerResponseDTO>>> search(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) CustomerType type,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate,
             @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
 
-        Page<CustomerResponseDTO> response = service.search(search, type, pageable);
+        Page<CustomerResponseDTO> response = service.search(search, type, startDate, endDate, pageable);
 
         return ResponseEntity.ok(
                 ApiResponse

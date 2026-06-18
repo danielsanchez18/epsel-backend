@@ -14,7 +14,9 @@ public class InstallationRequestSpecification {
     public static Specification<InstallationRequest> search(
             String search,
             InstallationRequestStatus status,
-            String zoneName
+            String zoneName,
+            java.time.LocalDateTime startDate,
+            java.time.LocalDateTime endDate
     ) {
 
         return (root, query, cb) -> {
@@ -42,6 +44,14 @@ public class InstallationRequestSpecification {
 
             if (zoneName != null) {
                 predicates.add(cb.equal(root.get("property").get("zone").get("name"), zoneName));
+            }
+
+            if (startDate != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), startDate));
+            }
+
+            if (endDate != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), endDate));
             }
 
             query.orderBy(cb.desc(root.get("createdAt")));

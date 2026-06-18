@@ -229,6 +229,8 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
             String search,
             InstallationRequestStatus status,
             String zoneName,
+            java.time.LocalDateTime startDate,
+            java.time.LocalDateTime endDate,
             Pageable pageable
     ) {
 
@@ -236,7 +238,9 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
                 InstallationRequestSpecification.search(
                         search,
                         status,
-                        zoneName
+                        zoneName,
+                        startDate,
+                        endDate
                 ),
                 pageable
         ).map(this::mapResponse);
@@ -408,20 +412,19 @@ public class InstallationRequestServiceImpl implements InstallationRequestServic
     }
 
     @Override
-    public ApplicationKpisDTO getKpis() {
-        long pendingApplications = repository.countByStatusAndDeletedFalse(InstallationRequestStatus.PENDING);
+    public ApplicationKpisDTO getKpis(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
+        long pendingApplications = repository.countByStatusAndDateRange(InstallationRequestStatus.PENDING, startDate, endDate);
 
         LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
         long applicationsChangeThisMonth = repository.countByDeletedFalseAndCreatedAtAfter(startOfMonth);
 
-        long approvedApplications = repository.countByStatusAndDeletedFalse(InstallationRequestStatus.APPROVED);
+        long approvedApplications = repository.countByStatusAndDateRange(InstallationRequestStatus.APPROVED, startDate, endDate);
         long installedToday = repository.countByStatusAndDeletedFalseAndInstallationDate(InstallationRequestStatus.INSTALLED, LocalDate.now());
 
-        long rejectedApplications = repository.countByStatusAndDeletedFalse(InstallationRequestStatus.REJECTED);
+        long rejectedApplications = repository.countByStatusAndDateRange(InstallationRequestStatus.REJECTED, startDate, endDate);
         long rejectedApplicationsChangeThisMonth = repository.countByStatusAndDeletedFalseAndRejectedDateAfter(InstallationRequestStatus.REJECTED, startOfMonth.toLocalDate());
 
-        LocalDateTime last30Days = LocalDateTime.now().minusDays(30);
-        BigDecimal projectedRevenue = repository.sumProjectedRevenueAfter(last30Days);
+        BigDecimal projectedRevenue = repository.sumProjectedRevenueByDateRange(startDate, endDate);
 
         return ApplicationKpisDTO.builder()
                 .pendingApplications(pendingApplications)

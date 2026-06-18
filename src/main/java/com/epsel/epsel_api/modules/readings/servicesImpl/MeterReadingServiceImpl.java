@@ -115,7 +115,7 @@ public class MeterReadingServiceImpl implements MeterReadingService {
     }
 
     @Override
-    public Page<MeterReadingResponseDTO> search(String search, UUID zoneId, ReadingStatus status, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public Page<MeterReadingResponseDTO> search(String search, UUID zoneId, ReadingStatus status, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate, Pageable pageable) {
         return repository.
                 findAll(MeterReadingSpecification.search(search, zoneId, status, startDate, endDate), pageable)
                 .map(this::mapResponse);
@@ -204,17 +204,16 @@ public class MeterReadingServiceImpl implements MeterReadingService {
     }
 
     @Override
-    public ReadingKpisDTO getKpis() {
+    public ReadingKpisDTO getKpis(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
         java.time.LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
         long registeredToday = repository.countByDeletedFalseAndCreatedAtAfter(startOfToday);
 
-        long pending = repository.countByStatusAndDeletedFalse(ReadingStatus.RECORDED);
-        long validated = repository.countByStatusAndDeletedFalse(ReadingStatus.VALIDATED);
-        long billed = repository.countByStatusAndDeletedFalse(ReadingStatus.BILLED);
-        long cancelled = repository.countByStatusAndDeletedFalse(ReadingStatus.CANCELLED);
+        long pending = repository.countByStatusAndDateRange(ReadingStatus.RECORDED, startDate, endDate);
+        long validated = repository.countByStatusAndDateRange(ReadingStatus.VALIDATED, startDate, endDate);
+        long billed = repository.countByStatusAndDateRange(ReadingStatus.BILLED, startDate, endDate);
+        long cancelled = repository.countByStatusAndDateRange(ReadingStatus.CANCELLED, startDate, endDate);
 
-        LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
-        long monthConsumption = repository.sumConsumptionByReadingDateAfterAndDeletedFalse(startOfMonth);
+        long monthConsumption = repository.sumConsumptionByDateRange(startDate, endDate);
 
         return ReadingKpisDTO.builder()
                 .registeredToday(registeredToday)

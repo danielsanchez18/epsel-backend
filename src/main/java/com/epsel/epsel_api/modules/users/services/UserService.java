@@ -40,4 +40,8 @@ public interface UserService {
     com.epsel.epsel_api.shared.responses.ImportPreviewResponse<CreateUserDTO> previewImport(MultipartFile file);
 
     void createBulk(java.util.List<CreateUserDTO> dtos);
+
+    void resetPassword(UUID id);
+
+    void changePassword(String email, com.epsel.epsel_api.modules.users.dto.ChangePasswordDTO dto);
 }

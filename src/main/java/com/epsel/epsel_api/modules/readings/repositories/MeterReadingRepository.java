@@ -41,6 +41,12 @@ public interface MeterReadingRepository extends
     @Query("SELECT COALESCE(SUM(mr.consumption), 0) FROM MeterReading mr WHERE mr.deleted = false AND mr.readingDate >= :startDate")
     long sumConsumptionByReadingDateAfterAndDeletedFalse(@org.springframework.data.repository.query.Param("startDate") java.time.LocalDate startDate);
 
+    @Query("SELECT COUNT(m) FROM MeterReading m WHERE m.deleted = false AND m.status = :status AND (CAST(:startDate AS timestamp) IS NULL OR m.createdAt >= :startDate) AND (CAST(:endDate AS timestamp) IS NULL OR m.createdAt <= :endDate)")
+    long countByStatusAndDateRange(@org.springframework.data.repository.query.Param("status") ReadingStatus status, @org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate, @org.springframework.data.repository.query.Param("endDate") java.time.LocalDateTime endDate);
+
+    @Query("SELECT COALESCE(SUM(mr.consumption), 0) FROM MeterReading mr WHERE mr.deleted = false AND (CAST(:startDate AS timestamp) IS NULL OR mr.createdAt >= :startDate) AND (CAST(:endDate AS timestamp) IS NULL OR mr.createdAt <= :endDate)")
+    long sumConsumptionByDateRange(@org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate, @org.springframework.data.repository.query.Param("endDate") java.time.LocalDateTime endDate);
+
     @Query("SELECT COUNT(DISTINCT mr.supply) FROM MeterReading mr WHERE mr.deleted = false AND MONTH(mr.readingDate) = :month AND YEAR(mr.readingDate) = :year")
     long countSuppliesWithReadingsThisMonth(
             @org.springframework.data.repository.query.Param("month") int month,

@@ -72,6 +72,21 @@ public class BillingController {
         );
     }
 
+    @GetMapping("/kpis")
+    public ResponseEntity<ApiResponse<com.epsel.epsel_api.modules.billing.dto.BillingKpiDTO>> getKpis(
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse
+                        .<com.epsel.epsel_api.modules.billing.dto.BillingKpiDTO>builder()
+                        .success(true)
+                        .message("KPIs de facturación obtenidos exitosamente")
+                        .data(service.getKpis(startDate, endDate))
+                        .build()
+        );
+    }
+
     @GetMapping
     public ResponseEntity<ApiResponse<Page<BillingResponseDTO>>> search(
             @RequestParam(required = false) String billingNumber,

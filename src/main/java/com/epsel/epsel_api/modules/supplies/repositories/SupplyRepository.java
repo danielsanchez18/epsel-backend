@@ -34,6 +34,8 @@ public interface SupplyRepository extends
 
     long countByStatusAndDeletedFalse(SupplyStatus status);
 
+    long countByStatusAndDeletedFalseAndCreatedAtBefore(SupplyStatus status, java.time.LocalDateTime dateTime);
+
     @Query("SELECT COUNT(s) FROM Supply s WHERE MONTH(s.createdAt) = :month AND YEAR(s.createdAt) = :year AND s.status = :status AND s.deleted = false")
     long countByStatusAndCreatedAtMonthAndYear(
             @Param("status") SupplyStatus status,

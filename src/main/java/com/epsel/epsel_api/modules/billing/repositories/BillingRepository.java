@@ -31,6 +31,11 @@ public interface BillingRepository extends
 
     long countByStatusAndDeletedFalse(BillingStatus status);
 
+    long countByStatusAndDeletedFalseAndCreatedAtBefore(BillingStatus status, java.time.LocalDateTime dateTime);
+
+    @Query("SELECT COUNT(b) FROM Billing b WHERE b.deleted = false AND b.createdAt < :dateTime AND (b.status = com.epsel.epsel_api.modules.billing.enums.BillingStatus.OVERDUE OR (b.status IN (com.epsel.epsel_api.modules.billing.enums.BillingStatus.PENDING, com.epsel.epsel_api.modules.billing.enums.BillingStatus.PARTIALLY_PAID) AND b.dueDate < CURRENT_DATE))")
+    long countRealOverdueBillsBefore(@Param("dateTime") java.time.LocalDateTime dateTime);
+
     @Query("SELECT COUNT(b) FROM Billing b WHERE b.deleted = false AND (b.status = com.epsel.epsel_api.modules.billing.enums.BillingStatus.OVERDUE OR (b.status IN (com.epsel.epsel_api.modules.billing.enums.BillingStatus.PENDING, com.epsel.epsel_api.modules.billing.enums.BillingStatus.PARTIALLY_PAID) AND b.dueDate < CURRENT_DATE))")
     long countRealOverdueBills();
 
@@ -53,6 +58,15 @@ public interface BillingRepository extends
         AND b.status <> 'PAID'
     """)
     BigDecimal getTotalPendingCollection();
+
+    @Query("""
+        SELECT COALESCE(SUM(b.pendingAmount),0)
+        FROM Billing b
+        WHERE b.deleted=false
+        AND b.status <> 'PAID'
+        AND b.createdAt < :targetDate
+    """)
+    BigDecimal getTotalPendingCollectionBefore(@Param("targetDate") java.time.LocalDateTime targetDate);
 
     @Query("""
         SELECT
@@ -117,4 +131,35 @@ public interface BillingRepository extends
 
     @Query("SELECT b.consumption FROM Billing b WHERE b.supply.customer.id = :customerId AND b.deleted = false ORDER BY b.billingYear DESC, b.billingMonth DESC")
     List<Integer> findConsumptionsByCustomerIdOrderByDateDesc(@Param("customerId") UUID customerId, org.springframework.data.domain.Pageable pageable);
+
+    // Collection KPIs
+
+    @Query("SELECT COUNT(b) FROM Billing b WHERE b.deleted = false AND b.status IN (com.epsel.epsel_api.modules.billing.enums.BillingStatus.PENDING, com.epsel.epsel_api.modules.billing.enums.BillingStatus.PARTIALLY_PAID) AND (CAST(:startDate AS timestamp) IS NULL OR b.createdAt >= :startDate) AND (CAST(:endDate AS timestamp) IS NULL OR b.createdAt <= :endDate)")
+    long countPendingBillsForCollection(@Param("startDate") java.time.LocalDateTime startDate, @Param("endDate") java.time.LocalDateTime endDate);
+
+    @Query("SELECT COUNT(b) FROM Billing b WHERE b.deleted = false AND b.status = com.epsel.epsel_api.modules.billing.enums.BillingStatus.OVERDUE AND (CAST(:startDate AS timestamp) IS NULL OR b.createdAt >= :startDate) AND (CAST(:endDate AS timestamp) IS NULL OR b.createdAt <= :endDate)")
+    long countOverdueBillsForCollection(@Param("startDate") java.time.LocalDateTime startDate, @Param("endDate") java.time.LocalDateTime endDate);
+
+    @Query("SELECT COALESCE(SUM(b.pendingAmount), 0) FROM Billing b WHERE b.deleted = false AND b.status IN (com.epsel.epsel_api.modules.billing.enums.BillingStatus.PENDING, com.epsel.epsel_api.modules.billing.enums.BillingStatus.PARTIALLY_PAID) AND (CAST(:startDate AS timestamp) IS NULL OR b.createdAt >= :startDate) AND (CAST(:endDate AS timestamp) IS NULL OR b.createdAt <= :endDate)")
+    BigDecimal sumPendingAmountForCollection(@Param("startDate") java.time.LocalDateTime startDate, @Param("endDate") java.time.LocalDateTime endDate);
+
+    @Query("SELECT COALESCE(SUM(b.pendingAmount), 0) FROM Billing b WHERE b.deleted = false AND b.status = com.epsel.epsel_api.modules.billing.enums.BillingStatus.OVERDUE AND (CAST(:startDate AS timestamp) IS NULL OR b.createdAt >= :startDate) AND (CAST(:endDate AS timestamp) IS NULL OR b.createdAt <= :endDate)")
+    BigDecimal sumOverdueAmountForCollection(@Param("startDate") java.time.LocalDateTime startDate, @Param("endDate") java.time.LocalDateTime endDate);
+
+    @Query("SELECT COUNT(DISTINCT b.supply.customer) FROM Billing b WHERE b.deleted = false AND b.status = com.epsel.epsel_api.modules.billing.enums.BillingStatus.OVERDUE AND (CAST(:startDate AS timestamp) IS NULL OR b.createdAt >= :startDate) AND (CAST(:endDate AS timestamp) IS NULL OR b.createdAt <= :endDate)")
+    long countDelinquentCustomersForCollection(@Param("startDate") java.time.LocalDateTime startDate, @Param("endDate") java.time.LocalDateTime endDate);
+
+    @Query("SELECT COUNT(supp.id) FROM (SELECT b.supply.id as id FROM Billing b WHERE b.deleted = false AND b.status = com.epsel.epsel_api.modules.billing.enums.BillingStatus.OVERDUE AND (CAST(:startDate AS timestamp) IS NULL OR b.createdAt >= :startDate) AND (CAST(:endDate AS timestamp) IS NULL OR b.createdAt <= :endDate) GROUP BY b.supply.id HAVING COUNT(b.id) >= 2) supp")
+    long countSuppliesToCutForCollection(@Param("startDate") java.time.LocalDateTime startDate, @Param("endDate") java.time.LocalDateTime endDate);
+
+    // Dashboard Billing KPIs
+    @Query("SELECT COUNT(b) FROM Billing b WHERE b.deleted = false AND b.status = :status AND (CAST(:startDate AS timestamp) IS NULL OR b.createdAt >= :startDate) AND (CAST(:endDate AS timestamp) IS NULL OR b.createdAt <= :endDate)")
+    long countBillsByStatusForDashboard(@Param("status") com.epsel.epsel_api.modules.billing.enums.BillingStatus status, @Param("startDate") java.time.LocalDateTime startDate, @Param("endDate") java.time.LocalDateTime endDate);
+
+    @Query("SELECT COALESCE(SUM(CASE WHEN b.amountPaid IS NOT NULL THEN b.amountPaid ELSE b.totalAmount END), 0) FROM Billing b WHERE b.deleted = false AND b.status = com.epsel.epsel_api.modules.billing.enums.BillingStatus.PAID AND (CAST(:startDate AS timestamp) IS NULL OR b.createdAt >= :startDate) AND (CAST(:endDate AS timestamp) IS NULL OR b.createdAt <= :endDate)")
+    BigDecimal sumTotalCollectedForDashboard(@Param("startDate") java.time.LocalDateTime startDate, @Param("endDate") java.time.LocalDateTime endDate);
+
+    @Query("SELECT COALESCE(SUM(b.totalAmount - COALESCE(b.amountPaid, 0)), 0) FROM Billing b WHERE b.deleted = false AND b.status IN (com.epsel.epsel_api.modules.billing.enums.BillingStatus.PENDING, com.epsel.epsel_api.modules.billing.enums.BillingStatus.OVERDUE) AND (CAST(:startDate AS timestamp) IS NULL OR b.createdAt >= :startDate) AND (CAST(:endDate AS timestamp) IS NULL OR b.createdAt <= :endDate)")
+    BigDecimal sumTotalPendingForDashboard(@Param("startDate") java.time.LocalDateTime startDate, @Param("endDate") java.time.LocalDateTime endDate);
+
 }

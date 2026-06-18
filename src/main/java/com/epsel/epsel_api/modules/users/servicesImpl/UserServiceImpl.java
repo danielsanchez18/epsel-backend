@@ -237,4 +237,25 @@ public class UserServiceImpl implements UserService {
             repository.save(user);
         }
     }
+
+    @Override
+    public void resetPassword(UUID id) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        user.setPassword(passwordEncoder.encode(user.getDni()));
+        repository.save(user);
+    }
+
+    @Override
+    public void changePassword(String email, com.epsel.epsel_api.modules.users.dto.ChangePasswordDTO dto) {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+            throw new com.epsel.epsel_api.shared.exceptions.BadRequestException("La contraseña actual es incorrecta");
+        }
+
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        repository.save(user);
+    }
 }

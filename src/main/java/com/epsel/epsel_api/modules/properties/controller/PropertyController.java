@@ -76,10 +76,12 @@ public class PropertyController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) PropertyType type,
             @RequestParam(required = false) UUID customerId,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate,
             @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
 
-        Page<PropertyResponseDTO> response = service.search(search, type, customerId, pageable);
+        Page<PropertyResponseDTO> response = service.search(search, type, customerId, startDate, endDate, pageable);
 
         return ResponseEntity.ok(
                 ApiResponse
@@ -104,8 +106,11 @@ public class PropertyController {
     }
 
     @GetMapping("/kpis")
-    public ResponseEntity<ApiResponse<PropertyKpisDTO>> getKpis() {
-        PropertyKpisDTO response = service.getKpis();
+    public ResponseEntity<ApiResponse<PropertyKpisDTO>> getKpis(
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate
+    ) {
+        PropertyKpisDTO response = service.getKpis(startDate, endDate);
 
         return ResponseEntity.ok(
                 ApiResponse

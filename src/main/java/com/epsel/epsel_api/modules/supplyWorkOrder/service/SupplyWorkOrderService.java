@@ -23,6 +23,8 @@ public interface SupplyWorkOrderService {
             UUID supplyId,
             WorkOrderType type,
             WorkOrderStatus status,
+            java.time.LocalDateTime startDate,
+            java.time.LocalDateTime endDate,
             Pageable pageable
     );
 

@@ -94,9 +94,11 @@ public class SupplyWorkOrderServiceImpl implements SupplyWorkOrderService {
             UUID supplyId,
             WorkOrderType type,
             WorkOrderStatus status,
+            java.time.LocalDateTime startDate,
+            java.time.LocalDateTime endDate,
             Pageable pageable) {
 
-        return repository.findAll(SupplyWorkOrderSpecification.search(supplyId, type, status), pageable)
+        return repository.findAll(SupplyWorkOrderSpecification.search(supplyId, type, status, startDate, endDate), pageable)
                 .map(this::mapResponse);
     }
 

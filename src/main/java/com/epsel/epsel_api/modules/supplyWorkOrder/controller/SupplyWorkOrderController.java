@@ -59,10 +59,12 @@ public class SupplyWorkOrderController {
             @RequestParam(required = false) UUID supplyId,
             @RequestParam(required = false) WorkOrderType type,
             @RequestParam(required = false) WorkOrderStatus status,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate,
             @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
 
-        Page<SupplyWorkOrderResponseDTO> response = service.search(supplyId, type, status, pageable);
+        Page<SupplyWorkOrderResponseDTO> response = service.search(supplyId, type, status, startDate, endDate, pageable);
 
         return ResponseEntity.ok(
                 ApiResponse

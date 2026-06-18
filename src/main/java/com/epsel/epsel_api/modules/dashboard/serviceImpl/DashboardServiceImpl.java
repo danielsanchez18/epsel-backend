@@ -54,9 +54,9 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     @Transactional(readOnly = true)
-    public DashboardResponseDTO getDashboard() {
+    public DashboardResponseDTO getDashboard(Integer month, Integer year) {
         return DashboardResponseDTO.builder()
-                .kpis(buildKpis())
+                .kpis(buildKpis(month, year))
                 .alerts(buildAlerts())
                 .billingChart(buildBillingChart())
                 .paymentChart(buildPaymentChart())
@@ -65,17 +65,20 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
     }
 
-    private DashboardKpiDTO buildKpis() {
+    private DashboardKpiDTO buildKpis(Integer targetMonth, Integer targetYear) {
         LocalDate now = LocalDate.now();
-        int month = now.getMonthValue();
-        int year = now.getYear();
+        int month = targetMonth != null ? targetMonth : now.getMonthValue();
+        int year = targetYear != null ? targetYear : now.getYear();
 
-        LocalDate lastMonthDate = now.minusMonths(1);
+        LocalDate targetDate = LocalDate.of(year, month, 1);
+        LocalDateTime targetDateEnd = targetDate.plusMonths(1).atStartOfDay(); // Start of next month
+        
+        LocalDate lastMonthDate = targetDate.minusMonths(1);
         int prevMonth = lastMonthDate.getMonthValue();
         int prevYear = lastMonthDate.getYear();
 
         // 1. Customers
-        long totalCust = customerRepository.countByDeletedFalse();
+        long totalCust = customerRepository.countByDeletedFalseAndCreatedAtBefore(targetDateEnd);
         long newCust = customerRepository.countCreatedInMonth(month, year);
         KpiMetricDTO totalCustomers = KpiMetricDTO.builder()
                 .value(totalCust)
@@ -84,7 +87,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
 
         // 2. Properties
-        long totalProp = propertyRepository.countByDeletedFalse();
+        long totalProp = propertyRepository.countByDeletedFalseAndCreatedAtBefore(targetDateEnd);
         long newProp = propertyRepository.countCreatedInMonth(month, year);
         KpiMetricDTO totalProperties = KpiMetricDTO.builder()
                 .value(totalProp)
@@ -93,7 +96,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
 
         // 3. Active Supplies
-        long totalAct = supplyRepository.countByStatusAndDeletedFalse(SupplyStatus.ACTIVE);
+        long totalAct = supplyRepository.countByStatusAndDeletedFalseAndCreatedAtBefore(SupplyStatus.ACTIVE, targetDateEnd);
         long newAct = supplyRepository.countByStatusAndCreatedAtMonthAndYear(SupplyStatus.ACTIVE, month, year);
         KpiMetricDTO activeSupplies = KpiMetricDTO.builder()
                 .value(totalAct)
@@ -102,7 +105,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
 
         // 4. Suspended Supplies
-        long totalSusp = supplyRepository.countByStatusAndDeletedFalse(SupplyStatus.SUSPENDED);
+        long totalSusp = supplyRepository.countByStatusAndDeletedFalseAndCreatedAtBefore(SupplyStatus.SUSPENDED, targetDateEnd);
         long newSusp = supplyRepository.countByStatusAndCreatedAtMonthAndYear(SupplyStatus.SUSPENDED, month, year);
         KpiMetricDTO suspendedSupplies = KpiMetricDTO.builder()
                 .value(totalSusp)
@@ -111,7 +114,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
 
         // 5. Cut Off Supplies
-        long totalCut = supplyRepository.countByStatusAndDeletedFalse(SupplyStatus.CUT_OFF);
+        long totalCut = supplyRepository.countByStatusAndDeletedFalseAndCreatedAtBefore(SupplyStatus.CUT_OFF, targetDateEnd);
         long newCut = supplyRepository.countByStatusAndCreatedAtMonthAndYear(SupplyStatus.CUT_OFF, month, year);
         KpiMetricDTO cutOffSupplies = KpiMetricDTO.builder()
                 .value(totalCut)
@@ -120,7 +123,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
 
         // 6. Pending Billings
-        long totalPend = billingRepository.countByStatusAndDeletedFalse(BillingStatus.PENDING);
+        long totalPend = billingRepository.countByStatusAndDeletedFalseAndCreatedAtBefore(BillingStatus.PENDING, targetDateEnd);
         long newPend = billingRepository.countByStatusAndCreatedAtMonthAndYear(BillingStatus.PENDING, month, year);
         KpiMetricDTO pendingBillings = KpiMetricDTO.builder()
                 .value(totalPend)
@@ -129,7 +132,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
 
         // 7. Overdue Billings
-        long totalOver = billingRepository.countByStatusAndDeletedFalse(BillingStatus.OVERDUE);
+        long totalOver = billingRepository.countByStatusAndDeletedFalseAndCreatedAtBefore(BillingStatus.OVERDUE, targetDateEnd);
         long newOver = billingRepository.countByStatusAndCreatedAtMonthAndYear(BillingStatus.OVERDUE, month, year);
         KpiMetricDTO overdueBillings = KpiMetricDTO.builder()
                 .value(totalOver)
@@ -182,7 +185,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
 
         // 10. Total Pending Collection
-        java.math.BigDecimal pendingThis = billingRepository.getTotalPendingCollection();
+        java.math.BigDecimal pendingThis = billingRepository.getTotalPendingCollectionBefore(targetDateEnd);
         java.math.BigDecimal pendingThisMonthDebt = billingRepository.getTotalPendingBilledMonth(month, year);
         java.math.BigDecimal pendingPrevMonthDebt = billingRepository.getTotalPendingBilledMonth(prevMonth, prevYear);
         double pendingChange = 0.0;

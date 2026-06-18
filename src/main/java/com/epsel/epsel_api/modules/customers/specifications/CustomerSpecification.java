@@ -8,7 +8,9 @@ public class CustomerSpecification {
 
     public static Specification<Customer> search(
             String search,
-            CustomerType type
+            CustomerType type,
+            java.time.LocalDateTime startDate,
+            java.time.LocalDateTime endDate
     ) {
 
         return (root, query, cb) -> {
@@ -29,6 +31,14 @@ public class CustomerSpecification {
 
             if (type != null) {
                 predicate = cb.and(predicate, cb.equal(root.get("type"), type));
+            }
+
+            if (startDate != null) {
+                predicate = cb.and(predicate, cb.greaterThanOrEqualTo(root.get("createdAt"), startDate));
+            }
+
+            if (endDate != null) {
+                predicate = cb.and(predicate, cb.lessThanOrEqualTo(root.get("createdAt"), endDate));
             }
 
             return predicate;

@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -141,6 +142,23 @@ public class BillingServiceImpl implements BillingService {
         }
 
         return mapResponse(billing);
+    }
+
+    @Override
+    public com.epsel.epsel_api.modules.billing.dto.BillingKpiDTO getKpis(LocalDateTime startDate, LocalDateTime endDate) {
+        long pendingCount = repository.countBillsByStatusForDashboard(BillingStatus.PENDING, startDate, endDate);
+        long overdueCount = repository.countBillsByStatusForDashboard(BillingStatus.OVERDUE, startDate, endDate);
+        long paidCount = repository.countBillsByStatusForDashboard(BillingStatus.PAID, startDate, endDate);
+        BigDecimal totalCollected = repository.sumTotalCollectedForDashboard(startDate, endDate);
+        BigDecimal totalPending = repository.sumTotalPendingForDashboard(startDate, endDate);
+
+        return com.epsel.epsel_api.modules.billing.dto.BillingKpiDTO.builder()
+                .pendingCount(pendingCount)
+                .overdueCount(overdueCount)
+                .paidCount(paidCount)
+                .totalCollected(totalCollected)
+                .totalPending(totalPending)
+                .build();
     }
 
     @Override
